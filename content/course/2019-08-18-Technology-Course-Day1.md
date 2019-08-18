@@ -69,5 +69,5 @@ Let's work through an example:
 King, Gary. "Restructuring the social sciences: reflections from Harvard's Institute for Quantitative Social Science." PS: Political Science & Politics 47.1 (2014): 165-172.
 
   - [Google Scholar](https://scholar.google.com/)
-  - [PS: Political Science](https://www.cambridge.org/core/journals/ps-political-science-and-politics#)
+  - Go directly to journal: [PS: Political Science](https://www.cambridge.org/core/journals/ps-political-science-and-politics#)
   - [Emory Course Reserves](http://web.library.emory.edu/using-the-library/course-reserves/index.html)
