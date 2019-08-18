@@ -1,5 +1,6 @@
-Technology Bootcamp Day 1
+Technology Course Day 1
 ========================================================
+title: Technology Course Day 1
 author: Elisha Cohen
 date: August 22nd, 2019
 autosize: true
