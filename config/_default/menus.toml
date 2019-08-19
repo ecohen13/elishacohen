@@ -24,6 +24,11 @@
   name = "Contact"
   url = "#contact"
   weight = 60
+  
+[[main]]
+  name = "Slides"
+  url = "#slider"
+  weight = 55
 
 # Link to a PDF of your resume/CV from the menu.
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
