@@ -11,8 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 1
 
-[<i class="fa fa-camera-retro"></i> Slides][balloons-jpg]&ensp;
-[<i class="fa fa-file-html-o" aria-hidden="true"></i> Final html][test-html]
+[<i class="fa fa-camera-retro"></i> Slides][test-html]
 
 <figure class="fullwidth">
 
@@ -26,7 +25,7 @@ fifth time
 
 ### Day 2 LaTex and Mathematica
 
-[![Color][color-stripes-jpg]]
+![Color][color-stripes-jpg]
 </figure>
 [color-stripes-jpg]: /img/color-stripes.jpg
 
