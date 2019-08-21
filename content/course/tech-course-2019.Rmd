@@ -11,27 +11,27 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 1
 
-[<i class="fa fa-camera-retro"></i> fa-camera-retro][balloons-jpg]&ensp;
-[<i class="fa fa-picture-o" aria-hidden="true"></i> Final PNG][dog-jpg]&ensp;
+[<i class="fa fa-camera-retro"></i> Slides][balloons-jpg]&ensp;
 [<i class="fa fa-file-html-o" aria-hidden="true"></i> Final html][test-html]
 
 <figure class="fullwidth">
 
 [![Balloons][balloons-jpg]][test-html]
 
-fourth time
+fifth time
 
 </figure>
 [balloons-jpg]: /slides/tech-ballons-small.jpg
 [test-html]: /slides/test-slides.html
 
-### Day 2 $\LaTex$ and Mathematica
+### Day 2 LaTex and Mathematica
 
+[![Color][color-stripes-jpg]]
 </figure>
 [color-stripes-jpg]: /img/color-stripes.jpg
 
 
 ### Day 3 Introduction to R
-
+[![Computer][computer-jpg]]
 </figure>
 [computer-jpg]: /img/computer.jpg
