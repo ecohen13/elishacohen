@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Slides here
-![slides here!!!!](/static/slides/test-slides.html)
+![slides here!!!!](/slides/test-slides.html)
 
 ## R Markdown
 
