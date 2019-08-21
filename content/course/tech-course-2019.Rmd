@@ -11,15 +11,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 1
 
+[<i class="fa fa-camera-retro"></i> fa-camera-retro][balloons-jpg]&ensp;
 [<i class="fa fa-picture-o" aria-hidden="true"></i> Final PNG][dog-jpg]&ensp;
 [<i class="fa fa-file-html-o" aria-hidden="true"></i> Final html][test-html]
 
 <figure class="fullwidth">
 
-[![Dog slides][dog-jpg]][test-html]
+[![Balloons][balloons-jpg]][test-html]
 
-second time
+third time
 
 </figure>
-[dog-jpg]: /slides/dog-bomber-jacket.jpg
+[balloons-jpg]: /slides/tech-ballons-small.jpg
 [test-html]: /slides/test-slides.html
