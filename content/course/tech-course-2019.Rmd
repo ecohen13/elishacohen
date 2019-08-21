@@ -9,17 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Slides here
-![slides here!!!!](/slides/test-slides.html)
+### Day 1
 
-## R Markdown
+[<i class="fa fa-file-pdf-o" aria-hidden="true"></i> Dog Picture][dog-bomber-jacket-jpg]&ensp;
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+<figure class="fullwidth">
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+[![Dog slides][slides/dog-bomber-jacket-jpg]][slides/test-slides-html]
 
-## Including Plots
-
-You can also embed plots, for example:
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+I don't know if this will work
