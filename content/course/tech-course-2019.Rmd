@@ -11,13 +11,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 1
 
-[<i class="fa fa-camera-retro"></i> Slides][test-html]
+[<i class="fa fa-file-image-o"></i> Slides][test-html]
 
 <figure class="fullwidth">
 
 [![Balloons][balloons-jpg]][test-html]
 
-fifth time
 
 </figure>
 [balloons-jpg]: /slides/tech-ballons-small.jpg
@@ -31,6 +30,6 @@ fifth time
 
 
 ### Day 3 Introduction to R
-[![Computer][computer-jpg]]
+![Computer][computer-jpg]
 </figure>
 [computer-jpg]: /img/computer.jpg
