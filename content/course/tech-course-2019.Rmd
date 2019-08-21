@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 1 Overview
 
-[<i class="fa fa-file-pdf-o"></i> Slides][test-html]
+[<i class="fa fa-file-pdf-o"></i> Slides][test-html]&nbsp;
 
 <figure class="fullwidth">
 
