@@ -19,8 +19,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 [![Balloons][balloons-jpg]][test-html]
 
-third time
+fourth time
 
 </figure>
 [balloons-jpg]: /slides/tech-ballons-small.jpg
 [test-html]: /slides/test-slides.html
+
+### Day 2 $\LaTex$ and Mathematica
+
+</figure>
+[color-stripes-jpg]: /img/color-stripes.jpg
+
+
+### Day 3 Introduction to R
+
+</figure>
+[computer-jpg]: /img/computer.jpg
