@@ -11,7 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 1 Overview
 
-[<i class="fa fa-file-pdf-o"></i> PDF][day1-pdf]&nbsp;
+[<i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF][day1-pdf]&ensp;
+[<i class="fa fa-file-pdf-o" aria-hidden="true"></i> Version Control][vc-html]
 
 <figure class="fullwidth">
 
@@ -22,6 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 [balloons-jpg]: /slides/tech-ballons-small.jpg
 [test-html]: /slides/test-slides.html
 [day1-pdf]: /tex/tech-course-Day1.pdf
+[vc-html]: /slides/Verson-Control.html
 
 ### Day 2 LaTex and Mathematica
 
