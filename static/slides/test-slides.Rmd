@@ -1,9 +1,8 @@
 ---
-title: "Presentation Ninja"
-subtitle: "⚔<br/>with xaringan"
-author: "Yihui Xie"
-institute: "RStudio, Inc."
-date: "2016/12/12 (updated: `r Sys.Date()`)"
+title: "Technology Course Day 1"
+author: "Elisha Cohen"
+institute: "Emory University"
+date: "2019/08/21 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -13,76 +12,76 @@ output:
       countIncrementalSlides: false
 ---
 
-background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
-
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
 ```
 
-???
+# Course Overview
 
-Image credit: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sharingan_triple.svg)
+- Structure of the course, Goals and Expectations
 
----
-class: center, middle
+- Software Overview, Emory Resources
 
-# xaringan
-
-### /ʃaː.'riŋ.ɡan/
-
----
-class: inverse, center, middle
-
-# Get Started
+- Workflow and Reproducibility Overview
 
 ---
 
-# Hello World
+# Structure of the course
 
-Install the **xaringan** package from [Github](https://github.com/yihui/xaringan):
+- Technology Course: August 22nd, 23rd, 26th, 9:30AM-12:30PM (Tarbutton 116)
 
-```{r eval=FALSE, tidy=FALSE}
-devtools::install_github("yihui/xaringan")
-```
+- R Course: Weekly starting Monday September 9th, 4:15-5:15PM (Tarbutton 313)
+
+- Materials: Laptop, all software open source or available through Emory
+
+- Goal: begin each session with review and instruction but majority of the session spent practicing and learning
+
+---
+# Expectations
+
+- We understand the time constraints on everyone. The first year can be especially difficult as you are acclimating to graduate school and Emory University.
 
 --
 
-You are recommended to use the [RStudio IDE](https://www.rstudio.com/products/rstudio/), but you do not have to.
-
-- Create a new R Markdown document from the menu `File -> New File -> R Markdown -> From Template -> Ninja Presentation`;<sup>1</sup>
+- No outside work is expected but we ask for the one hour a week of in-class time (and during the pre-class sessions) that you are present and participating.
 
 --
 
-- Click the `Knit` button to compile it;
+- Class is ungraded but I will frequently ask you to turn in work to receive written feedback. 
 
 --
 
-- or use the [RStudio Addin](https://rstudio.github.io/rstudioaddins/)<sup>2</sup> "Infinite Moon Reader" to live preview the slides (every time you update and save the Rmd document, the slides will be automatically reloaded in RStudio Viewer.
+- This is to give you practice writing code for others to read and in presenting your results which are important skills for collaboration and sharing research.
 
-.footnote[
-[1] 中文用户请看[这份教程](http://slides.yihui.name/xaringan/zh-CN.html)
+--
 
-[2] See [#2](https://github.com/yihui/xaringan/issues/2) if you do not see the template or addin in RStudio.
-]
-
----
-background-image: url(`r xaringan:::karl`)
-background-position: 50% 50%
-class: center, bottom, inverse
-
-# You only live once!
-
+- Additionally, we may engage in peer review by exchanging code with classmates. 
 ---
 
-# Hello Ninja
+# Software Overview
 
-As a presentation ninja, you certainly should not be satisfied by the "Hello World" example. You need to understand more about two things:
+- Open source vs. Proprietary
 
-1. The [remark.js](https://remarkjs.com) library;
+  * [R statistical software](https://cran.r-project.org/)
 
-1. The **xaringan** package;
+--
 
-Basically **xaringan** injected the chakra of R Markdown (minus Pandoc) into **remark.js**. The slides are rendered by remark.js in the web browser, and the Markdown source needed by remark.js is generated from R Markdown (**knitr**).
+- [Emory University Licenses](http://it.emory.edu/software/software_distribution.html)
+
+--
+
+- [Software in Emory Computer Labs](https://it.emory.edu/studentdigitallife/study_production_spaces/student-labs/software.html)
+
+---
+# File Hosting
+
+Back up your work!
+
+- [Dropbox](https://www.dropbox.com/)
+
+- [Emory Box](http://it.emory.edu/office365/BOX.html)
+
+- [Google Drive](https://www.google.com/drive/)
 
 ---
 

@@ -11,16 +11,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 1 Overview
 
-[<i class="fa fa-file-pdf-o"></i> Slides][test-html]&nbsp;
+[<i class="fa fa-file-pdf-o"></i> PDF][day1-pdf]&nbsp;
 
 <figure class="fullwidth">
 
-[![Balloons][balloons-jpg]][test-html]
+[![Balloons][balloons-jpg]][day1-pdf]
 
 
 </figure>
 [balloons-jpg]: /slides/tech-ballons-small.jpg
 [test-html]: /slides/test-slides.html
+[day1-pdf]: /tex/tech-course-Day1.pdf
 
 ### Day 2 LaTex and Mathematica
 
