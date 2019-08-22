@@ -1,0 +1,247 @@
+% Don't touch this %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in,headheight=3ex,headsep=3ex]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+
+\newcommand{\blankline}{\quad\pagebreak[2]}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Modify Course title, instructor name, semester here %%%%%%%%
+
+\title{Technology Course\\Day 1}
+\author{Elisha Cohen}
+\date{August 22nd, 2019}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Don't touch this %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[sc]{mathpazo}
+\linespread{1.05} % Palatino needs more leading (space between lines)
+\usepackage[T1]{fontenc}
+\usepackage[mmddyyyy]{datetime}% http://ctan.org/pkg/datetime
+\usepackage{advdate}% http://ctan.org/pkg/advdate
+\newdateformat{syldate}{\twodigit{\THEMONTH}/\twodigit{\THEDAY}}
+\newsavebox{\MONDAY}\savebox{\MONDAY}{Mon}% Mon
+\newcommand{\week}[1]{%
+%  \cleardate{mydate}% Clear date
+% \newdate{mydate}{\the\day}{\the\month}{\the\year}% Store date
+  \paragraph*{\kern-2ex\quad #1, \syldate{\today} - \AdvanceDate[4]\syldate{\today}:}% Set heading  \quad #1
+%  \setbox1=\hbox{\shortdayofweekname{\getdateday{mydate}}{\getdatemonth{mydate}}{\getdateyear{mydate}}}%
+  \ifdim\wd1=\wd\MONDAY
+    \AdvanceDate[7]
+  \else
+    \AdvanceDate[7]
+  \fi%
+}
+\usepackage{setspace}
+\usepackage{multicol}
+%\usepackage{indentfirst}
+\usepackage{fancyhdr,lastpage}
+\usepackage{url}
+\pagestyle{fancy}
+\usepackage{hyperref}
+\usepackage{lastpage}
+\usepackage{amsmath}
+\usepackage{layout}
+
+\usepackage{tabularx}
+\newcolumntype{b}{X} %define big width for table column
+\newcolumntype{s}{>{\hsize=.5\hsize}X} %define small width for table column
+\usepackage{booktabs}
+\lhead{}
+\chead{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Modify header here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\rhead{\footnotesize Day 1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Don't touch this %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\lfoot{}
+\cfoot{\small \thepage/\pageref*{LastPage}}
+\rfoot{}
+
+\usepackage{array, xcolor}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\definecolor{clemsonorange}{HTML}{EA6A20}
+\definecolor{purple}{HTML}{431C7C}
+%\hypersetup{colorlinks,breaklinks,linkcolor=clemsonorange,urlcolor=clemsonorange,anchorcolor=clemsonorange,citecolor=black}
+\hypersetup{colorlinks,breaklinks,linkcolor=purple,urlcolor=purple,anchorcolor=purple,citecolor=black}
+\begin{document}
+
+\maketitle
+
+\blankline
+
+\begin{tabular*}{.93\textwidth}{@{\extracolsep{\fill}}lr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Modify information %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+E-mail: \texttt{eacohe3@emory.edu} & Web: \href{elishacohen.rbind.io}{\tt\bf elishacohen.rbind.io}  \\
+
+Class Hours: Aug 22nd, 23rd, 26th, 9:30 AM-12:30 PM, Tarbutton 116 \\
+Office: Tarbutton 113C\\
+%  Office Hours: M 10-11:45am  & \\
+%
+%  Office: ... & Class Room: ... \\
+%  & \\
+% Lab Room: ... & Lab Hours: W 3-5pm \\
+% &  \\
+\hline
+\end{tabular*}
+
+\vspace{5 mm}
+
+% First Section %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Course Overview}
+
+\begin{itemize}
+  \item Structure of the course, Goals and Expectations
+  \item Software Overview, Emory Resources
+  \item Workflow and Reproducibility Overview
+\end{itemize}
+
+\section*{Structure of the course}
+\begin{itemize}
+  \item Technology Course: August 22nd, 23rd, 26th, 9:30AM-12:30PM
+  \item R Course: Weekly starting Monday September 9th, 4:15-5:15PM
+  \item Materials: Laptop, all software open source or available through Emory
+  \item Goal: begin each session with review and instruction but majority of the session spent practicing and learning
+\end{itemize}
+
+\section*{Expectations}
+\begin{itemize}
+  \item We understand the time constraints on everyone. The first year can be especially difficult as you are acclimating to graduate school and Emory University. No outside work is expected but we ask for the one hour a week of in-class time (and during the pre-class sessions) that you are present and participating.
+  \item Class is ungraded but I will frequently ask you to turn in work to receive written feedback. This is to give you practice writing code for others to read and in presenting your results which are important skills for collaboration and sharing research. Additionally, we may engage in peer review by exchanging code with classmates.
+\end{itemize}
+
+\section*{Software Overview}
+Open source vs. Proprietary
+  \begin{itemize}
+    \item \href{https://cran.r-project.org/}{R statistical software}
+    \item \href{http://it.emory.edu/software/software_distribution.html}{Emory University Licenses}
+    \item \href{https://it.emory.edu/studentdigitallife/study_production_spaces/student-labs/software.html)}{Software in Emory Computer Labs}
+  \end{itemize}
+
+
+\section*{File Hosting}
+Back up your work!
+\begin{itemize}
+  \item \href{https://www.dropbox.com/}{DropBox}
+  \item \href{http://it.emory.edu/office365/BOX.html}{Emory Box}
+  \item \href{https://www.google.com/drive/}{Google Drive}
+\end{itemize}
+
+\section*{Password Management}
+
+Password Manager easy way to store all of your usernames/passwords
+\begin{itemize}
+  \item Access from your computer, phone, other computers
+\end{itemize}
+
+Examples (not a comprehensive list)
+\begin{itemize}
+  \item \href{https://lastpass.com/}{LastPass}
+  \item \href{https://www.dashlane.com/}{Dashlane}
+  \item \href{https://1password.com/}{1Password}
+  \item \href{https://keepersecurity.com/}{Keeper Security}
+\end{itemize}
+
+\section*{Emory Resources}
+\begin{itemize}
+  \item \href{http://it.emory.edu/studentdigitallife/services/eagleprint/}{Eagle Print}
+  \begin{itemize}
+    \item Install driver, need to add Eagle Dollars to print
+  \end{itemize}
+  \item \href{http://web.library.emory.edu/using-the-library/off-campus.html}{Emory Woodruff Library Connect from Off Campus}
+\end{itemize}
+
+\section*{Finding Journal Articles }
+Let's work through an example:\\
+\vspace{5mm}
+
+King, Gary. "Restructuring the social sciences: reflections from Harvard's Institute for Quantitative Social Science." PS: Political Science \& Politics 47.1 (2014): 165-172.
+
+\begin{itemize}
+  \item \href{https://scholar.google.com/}{Google Scholar}
+  \item Go directly to journal: \href{https://www.cambridge.org/core/journals/ps-political-science-and-politics#}{PS: Political Science}
+  \item \href{http://web.library.emory.edu/using-the-library/course-reserves/index.html}{Emory Course Reserves}
+\end{itemize}
+
+\section*{Organization}
+
+\section*{Academic Skills}
+\begin{figure}[h!]%                 use [hb] only if necceccary!
+  \centering
+  \includegraphics[scale=.4]{reading-meme}
+  \label{fig:reading}
+\end{figure}
+
+\begin{itemize}
+  \item \href{https://blogs.swarthmore.edu/burke/permanent-features-advice-on-academia/how-to-read-in-college/}{How to Read in College}
+  \item \href{http://www.raulpacheco.org/}{Raul Pacheco-Vega's blog}
+  \item Note taking: Digital vs. Paper
+  \begin{itemize}
+    \item Lab Notebook for a research project
+    \item Meeting notes
+  \end{itemize}
+\end{itemize}
+
+\section*{Project Management}
+\begin{itemize}
+  \item Software for managing projects
+  \begin{itemize}
+    \item \href{https://asana.com/}{asana}, \href{https://www.omnigroup.com/omnifocus}{OmniFocus}, \href{https://trello.com/en-US}{trello}
+  \end{itemize}
+  \item Notebook and Planner
+  \item Google calendar and reminders
+\end{itemize}
+
+\subsection*{Workflow}
+\begin{itemize}
+  \item Find a naming convention and stick to it
+  \item Choose a system to organize your PDFs
+  \item The Political Methodologist Volume 18, Number 2, Spring 2011
+  \begin{itemize}
+    \item Literate programming
+    \item Version Control
+  \end{itemize}
+\end{itemize}
+
+\section*{Citation Manager}
+What can a citation manager help with?
+\begin{itemize}
+  \item Import files and their citation information
+  \item Organize your PDFs, create groups by topic, use tags and folders
+  \item Save and take notes on PDFs
+  \item Create bibliographies automatically
+\end{itemize}
+\href{https://guides.libraries.emory.edu/c.php?g=50756&p=325883}{Emory Libraries Resources}
+\begin{itemize}
+  \item \href{https://www.refworks.com}{RefWorks}(\$)
+  \item \href{https://guides.libraries.emory.edu/main/endnote}{EndNote}(Free through Emory)
+  \item \href{https://www.zotero.org/}{Zotero}
+  \item \href{https://www.mendeley.com/}{Mendeley}
+  \item \href{https://www.papersapp.com/}{Papers for Mac}(\$)
+  \item \href{http://www.jabref.org/}{JabRef}
+\end{itemize}
+
+\section*{Version Control}
+\begin{itemize}
+  \item Git, GitHub, Bitbucket
+\end{itemize}
+\section*{Life}
+\begin{itemize}
+  \item Keep healthy! Use Emory's resources:
+  \begin{itemize}
+    \item Counseling and Psychological Services: \href{http://counseling.emory.edu/}{CAPS}
+    \item Excercise: \href{http://play.emory.edu/}{Woodpec}
+  \end{itemize}
+\end{itemize}
+
+\end{document}
