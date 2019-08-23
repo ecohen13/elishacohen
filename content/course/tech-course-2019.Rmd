@@ -29,7 +29,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 [<i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF][day2-pdf]&ensp;
 
-[![Color][color-stripes-jpg][day2-pdf]]
+[![Color][color-stripes-jpg]][day2-pdf]
 </figure>
 [color-stripes-jpg]: /img/color-stripes.jpg
 [day2-pdf]: /PDFs/Tech-course-Day2-FA19.pdf
