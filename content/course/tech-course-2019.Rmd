@@ -27,10 +27,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Day 2 LaTex and Mathematica
 
-![Color][color-stripes-jpg]
+[<i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF][day2-pdf]&ensp;
+
+[![Color][color-stripes-jpg][day2-pdf]]
 </figure>
 [color-stripes-jpg]: /img/color-stripes.jpg
-
+[day2-pdf]: /PDFs/Tech-course-Day2-FA19.pdf
 
 ### Day 3 Introduction to R
 ![Computer][computer-jpg]
