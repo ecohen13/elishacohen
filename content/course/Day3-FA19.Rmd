@@ -1,0 +1,89 @@
+---
+title: "Technology Course Day 2: R and RStudio"
+author: "Elisha Cohen"
+date: "8/25/2019"
+header-includes:
+    - \usepackage{hyperref}
+    - \usepackage{xcolor}
+    - \definecolor{purple}{HTML}{431C7C}
+    - \hypersetup{colorlinks,breaklinks,linkcolor=purple,urlcolor=purple,anchorcolor=purple,citecolor=black}
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Installation
+
+* Install R software from \href{https://cran.r-project.org/}{CRAN}
+
+* Install \href{https://www.rstudio.com/products/rstudio/download/#download}{RStudio}
+
+* Andrew Heiss has on his \href{https://www.andrewheiss.com/blog/2012/04/17/install-r-rstudio-r-commander-windows-osx/}{blog} install instructions for both Windows and OS X
+
+### Set-up 
+
+1. Set your CRAN mirror: preferences > packages
+
+2. Set your theme and font: preferences > appearance
+
+3. Set your pane layout: preferences > Pane Layout
+
+4. In preferences > General, verify "save workspace on exit" set to `NEVER`
+
+### Packages and Libraries
+
+Try installing the `dplyr` package:
+
+```{r packageinstall, eval = FALSE}
+install.packages("dplyr")
+```
+
+* There is also a drop-down menu under Tools > Install Packages
+
+Load the `dplyr` package from your computer into your RStudio workspace:
+
+```{r packageload, eval=FALSE}
+library(dplyr)
+```
+
+### Getting Help for a package
+
+Help file:
+
+```{r helpcommand,eval=FALSE}
+help(foo)
+?foo ## ?? double question marks needed if package isn't loaded into library
+```
+
+Vignettes:
+
+```{r vignettes, eval = FALSE}
+vignette() # this will show list of all vignettes
+vignette(package = "dplyr") # vignettes included for a specific package
+vignette("dplyr") # views vignette
+```
+
+### Books and other resources
+
+* We will be following R for Data Science (abbreviated \href{https://r4ds.had.co.nz/introduction.html}{R4DS}) which is free online but you can also buy the book if you prefer
+
+* Library has another good resources: \href{http://discovere.emory.edu/primo_library/libweb/action/display.do?tabs=detailsTab&ct=display&fn=search&doc=01EMORY_ALMA51366131950002486&indx=1&recIds=01EMORY_ALMA51366131950002486&recIdxs=0&elementId=0&renderMode=poppedOut&displayMode=full&frbrVersion=&vid=discovere&institution=EMORY&vl(4439115UI0)=any&query=any%2Ccontains%2Chands+on+programming+with+R&libsearch=woodruff&dscnt=0&scp.scps=scope%3A%28repo%29%2Cscope%3A%2801EMORY_ALMA%29%2CEmory_PrimoThirdNode&vl(freeText0)=hands%20on%20programming%20with%20R&dstmp=1566767454149}{Hands-on programming with R} by Garrett Grolemund 
+  
+### The tidyverse
+
+We will be using a lot of packages in the tidyverse. Install or check for updates:
+
+```{r tidyverse, eval = FALSE}
+install.packages("tidyverse")
+tidyverse_update()
+```
+
+Additional packages used in the R4DS book:
+
+```{r installmmore,eval = FALSE}
+install.packages(c("nycflights13", "gapminder", "Lahman"))
+```
+
+  

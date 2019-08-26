@@ -1,0 +1,70 @@
+---
+title: "Technology Course Day 2: R and RStudio"
+author: "Elisha Cohen"
+date: "8/25/2019"
+header-includes:
+    - \usepackage{hyperref}
+    - \usepackage{xcolor}
+    - \definecolor{purple}{HTML}{431C7C}
+    - \hypersetup{colorlinks,breaklinks,linkcolor=purple,urlcolor=purple,anchorcolor=purple,citecolor=black}
+output: pdf_document
+---
+
+
+
+
+
+
+
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<ul>
+<li><p>Install R software from </p></li>
+<li><p>Install </p></li>
+<li><p>Andrew Heiss has on his  install instructions for both Windows and OS X</p></li>
+</ul>
+<div id="set-up" class="section level3">
+<h3>Set-up</h3>
+<ol style="list-style-type: decimal">
+<li><p>Set your CRAN mirror: preferences &gt; packages</p></li>
+<li><p>Set your theme and font: preferences &gt; appearance</p></li>
+<li><p>Set your pane layout: preferences &gt; Pane Layout</p></li>
+<li><p>In preferences &gt; General, verify “save workspace on exit” set to <code>NEVER</code></p></li>
+</ol>
+</div>
+<div id="packages-and-libraries" class="section level3">
+<h3>Packages and Libraries</h3>
+<p>Try installing the <code>dplyr</code> package:</p>
+<pre class="r"><code>install.packages(&quot;dplyr&quot;)</code></pre>
+<ul>
+<li>There is also a drop-down menu under Tools &gt; Install Packages</li>
+</ul>
+<p>Load the <code>dplyr</code> package from your computer into your RStudio workspace:</p>
+<pre class="r"><code>library(dplyr)</code></pre>
+</div>
+<div id="getting-help-for-a-package" class="section level3">
+<h3>Getting Help for a package</h3>
+<p>Help file:</p>
+<pre class="r"><code>help(foo)
+?foo ## ?? double question marks needed if package isn&#39;t loaded into library</code></pre>
+<p>Vignettes:</p>
+<pre class="r"><code>vignette() # this will show list of all vignettes
+vignette(package = &quot;dplyr&quot;) # vignettes included for a specific package
+vignette(&quot;dplyr&quot;) # views vignette</code></pre>
+</div>
+<div id="books-and-other-resources" class="section level3">
+<h3>Books and other resources</h3>
+<ul>
+<li><p>We will be following R for Data Science (abbreviated ) which is free online but you can also buy the book if you prefer</p></li>
+<li>Library has another good resources: </li>
+</ul>
+</div>
+<div id="the-tidyverse" class="section level3">
+<h3>The tidyverse</h3>
+<p>We will be using a lot of packages in the tidyverse. Install or check for updates:</p>
+<pre class="r"><code>install.packages(&quot;tidyverse&quot;)
+tidyverse_update()</code></pre>
+<p>Additional packages used in the R4DS book:</p>
+<pre class="r"><code>install.packages(c(&quot;nycflights13&quot;, &quot;gapminder&quot;, &quot;Lahman&quot;))</code></pre>
+</div>
+</div>
