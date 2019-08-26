@@ -16,11 +16,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Installation
 
-* Install R software from \href{https://cran.r-project.org/}{CRAN}
+* Install R software from [CRAN](https://cran.r-project.org/)
 
-* Install \href{https://www.rstudio.com/products/rstudio/download/#download}{RStudio}
+* Install [RStudio](https://www.rstudio.com/products/rstudio/download/#download)
 
-* Andrew Heiss has on his \href{https://www.andrewheiss.com/blog/2012/04/17/install-r-rstudio-r-commander-windows-osx/}{blog} install instructions for both Windows and OS X
+* Andrew Heiss has on his [blog](https://www.andrewheiss.com/blog/2012/04/17/install-r-rstudio-r-commander-windows-osx/) install instructions for both Windows and OS X
 
 ### Set-up 
 
@@ -67,9 +67,9 @@ vignette("dplyr") # views vignette
 
 ### Books and other resources
 
-* We will be following R for Data Science (abbreviated \href{https://r4ds.had.co.nz/introduction.html}{R4DS}) which is free online but you can also buy the book if you prefer
+* We will be following R for Data Science (abbreviated [R4DS](https://r4ds.had.co.nz/introduction.html)) which is free online but you can also buy the book if you prefer
 
-* Library has another good resources: \href{http://discovere.emory.edu/primo_library/libweb/action/display.do?tabs=detailsTab&ct=display&fn=search&doc=01EMORY_ALMA51366131950002486&indx=1&recIds=01EMORY_ALMA51366131950002486&recIdxs=0&elementId=0&renderMode=poppedOut&displayMode=full&frbrVersion=&vid=discovere&institution=EMORY&vl(4439115UI0)=any&query=any%2Ccontains%2Chands+on+programming+with+R&libsearch=woodruff&dscnt=0&scp.scps=scope%3A%28repo%29%2Cscope%3A%2801EMORY_ALMA%29%2CEmory_PrimoThirdNode&vl(freeText0)=hands%20on%20programming%20with%20R&dstmp=1566767454149}{Hands-on programming with R} by Garrett Grolemund 
+* Library has another good resources: [Hands-on programming with R](http://discovere.emory.edu/primo_library/libweb/action/display.do?tabs=detailsTab&ct=display&fn=search&doc=01EMORY_ALMA51366131950002486&indx=1&recIds=01EMORY_ALMA51366131950002486&recIdxs=0&elementId=0&renderMode=poppedOut&displayMode=full&frbrVersion=&vid=discovere&institution=EMORY&vl(4439115UI0)=any&query=any%2Ccontains%2Chands+on+programming+with+R&libsearch=woodruff&dscnt=0&scp.scps=scope%3A%28repo%29%2Cscope%3A%2801EMORY_ALMA%29%2CEmory_PrimoThirdNode&vl(freeText0)=hands%20on%20programming%20with%20R&dstmp=1566767454149) Garrett Grolemund 
   
 ### The tidyverse
 
