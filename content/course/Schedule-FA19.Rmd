@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ### September 16, 2019
 
 * Finishing up Chapter 3 of R4DS
-  - Short review options for visualization in ggplot2: color, fill, shape, size, facets, statistical transformations
+  - Short review: options for visualization in ggplot2: color, fill, shape, size, facets, statistical transformations
   
 * Chapter 4 Workflow
   - Review some coding basics: assignment, naming conventions, syntax of functions, basic de-bugging
