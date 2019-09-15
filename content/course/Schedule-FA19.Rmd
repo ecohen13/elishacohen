@@ -21,3 +21,8 @@ knitr::opts_chunk$set(echo = TRUE)
   - Using the `nycflights13` dataset
   - 5 key `dplyr` functions
   - Logical operators
+  
+### September 23, 2019
+
+* Review of Chapter 5 of R4DS
+* Continue with `dplyr`
