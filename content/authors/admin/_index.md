@@ -1,8 +1,7 @@
 ---
 authors:
 - admin
-bio: My research interests include cuasal inference, fairness and American politics.
-  matter.
+bio: My research interests include the politics of gender, race and ethnic politics, fairness, inequality and political methodology in the United States.
 email: ""
 name: Elisha Cohen
 organizations:
