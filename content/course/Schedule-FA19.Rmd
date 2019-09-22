@@ -24,5 +24,44 @@ knitr::opts_chunk$set(echo = TRUE)
   
 ### September 23, 2019
 
-* Review of Chapter 5 of R4DS
-* Continue with `dplyr`
+* Review of `filter()` function from Chapter 5 of R4DS
+* Continue with `arrange()`, `select()`, `mutate()`
+* Practice with exercises 5.2.4, 5.3.1, 5.4.1, 5.5.2
+* If time, start 5.6 grouped summaries with `summarize()`
+
+### September 30, 2019
+
+* Finish Chapter 5 of R4DS
+* grouped summaries with `summarize()`
+* grouped mutates
+
+### October 7, 2019
+
+* Chapter 6 Workflow: scripts of R4DS - go over saving and running R scripts
+* Chapter 7 Exploratory Data Analysis
+  - Visualizing distributions
+  - Unusual values
+  - Missing values
+  - Visualizing categorical vs. continuous variables
+  
+### October 14, 2019
+
+* No class - Fall Break
+
+### October 21, 2019
+
+* Review visualizing distributions
+* Continue with Chapter 7
+  - Patterns and models
+* Chapter 8 Workflow: projects
+  - Organization of files
+  - Paths and directories
+  - here() package 
+* Set-up example directory structure with R project
+
+### October 28, 2019
+
+* Chapter 10 Tibbles R4DS
+* Chapter 11 Data import
+  - loading different kinds of data: csv, RDS, RData
+  - writing to a file
