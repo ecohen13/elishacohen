@@ -40,11 +40,11 @@ A</code></pre>
 <pre class="r"><code># element in the 2nd row, 3rd column
 A[2,3]</code></pre>
 <pre><code>## [1] 6</code></pre>
-<p>To return the mth row:</p>
+<p>To return the <span class="math inline">\(m^{th}\)</span> row:</p>
 <pre class="r"><code># return the entire 3rd row
 A[3,]</code></pre>
 <pre><code>## [1]  7  8  9 30</code></pre>
-<p>To return the nth column:</p>
+<p>To return the <span class="math inline">\(n^{th}\)</span> column:</p>
 <pre class="r"><code># return the entire 4th column
 A[,4]</code></pre>
 <pre><code>## [1] 10 20 30 40</code></pre>
@@ -56,7 +56,13 @@ A[,4]</code></pre>
 ## [3,]   14   16   18   60
 ## [4,]   20   22   24   80</code></pre>
 <p>Let’s make a 2nd matrix, this time a 4X4 identity matrix:</p>
-<pre class="r"><code>B &lt;- diag(c(1,1,1,1))</code></pre>
+<pre class="r"><code>B &lt;- diag(c(1,1,1,1))
+B</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]    1    0    0    0
+## [2,]    0    1    0    0
+## [3,]    0    0    1    0
+## [4,]    0    0    0    1</code></pre>
 <p>To multiply matrices use <code>%*%</code></p>
 <pre class="r"><code>A%*%B</code></pre>
 <pre><code>##      [,1] [,2] [,3] [,4]
@@ -103,7 +109,7 @@ ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   xlab(&#39;Year&#39;) +
   theme_bw()</code></pre>
 <p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-13-1.png" width="672" />
-We can add a fittted line</p>
+We can add a fitted line</p>
 <pre class="r"><code>ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   geom_point() +
   geom_smooth(method=&#39;loess&#39;, color = &#39;blue&#39;, se=FALSE) +

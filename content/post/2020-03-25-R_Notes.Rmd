@@ -40,12 +40,12 @@ To access specific elements, rows or columns we use square brackets always speci
 # element in the 2nd row, 3rd column
 A[2,3]
 ```
-To return the mth row:
+To return the $m^{th}$ row:
 ```{r}
 # return the entire 3rd row
 A[3,]
 ```
-To return the nth column:
+To return the $n^{th}$ column:
 ```{r}
 # return the entire 4th column
 A[,4]
@@ -57,6 +57,7 @@ A*2
 Let's make a 2nd matrix, this time a 4X4 identity matrix:
 ```{r}
 B <- diag(c(1,1,1,1))
+B
 ```
 To multiply matrices use `%*%`
 ```{r}
@@ -105,7 +106,7 @@ ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   xlab('Year') +
   theme_bw()
 ```
-We can add a fittted line
+We can add a fitted line
 ```{r}
 ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   geom_point() +
