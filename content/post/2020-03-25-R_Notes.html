@@ -1,0 +1,17 @@
+---
+title: "R Notes March 25,2020"
+author: "Elisha Cohen"
+output: html_document
+---
+
+
+
+<div id="matrices-in-r" class="section level2">
+<h2>Matrices in R!</h2>
+<p>We can start by creating a 3X3 matrix and filling it with the numbers 1 to 9:</p>
+<pre class="r"><code>A &lt;- matrix(1:9, nrow = 3, ncol = 3)</code></pre>
+<p>If we use the <code>class()</code> function to check the class it should be of the matrix class:</p>
+<pre class="r"><code>class(A)</code></pre>
+<pre><code>## [1] &quot;matrix&quot;</code></pre>
+<p>This can be important because if matrix operations aren’t working it may be that our object is a data.frame or tibble.</p>
+</div>

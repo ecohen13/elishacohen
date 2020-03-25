@@ -1,0 +1,24 @@
+---
+title: "R Notes March 25,2020"
+author: "Elisha Cohen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Matrices in R!
+
+We can start by creating a 3X3 matrix and filling it with the numbers 1 to 9:
+
+```{r c1}
+A <- matrix(1:9, nrow = 3, ncol = 3)
+```
+
+If we use the `class()` function to check the class it should be of the matrix class:
+
+```{r c2}
+class(A)
+```
+This can be important because if matrix operations aren't working it may be that our object is a data.frame or tibble.
