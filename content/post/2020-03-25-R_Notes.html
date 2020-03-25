@@ -1,5 +1,5 @@
 ---
-title: "R Notes March 25,2020"
+title: "R Notes March 25, 2020"
 author: "Elisha Cohen"
 output: html_document
 ---
@@ -9,9 +9,112 @@ output: html_document
 <div id="matrices-in-r" class="section level2">
 <h2>Matrices in R!</h2>
 <p>We can start by creating a 3X3 matrix and filling it with the numbers 1 to 9:</p>
-<pre class="r"><code>A &lt;- matrix(1:9, nrow = 3, ncol = 3)</code></pre>
+<pre class="r"><code>A &lt;- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
+A</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    2    3
+## [2,]    4    5    6
+## [3,]    7    8    9</code></pre>
 <p>If we use the <code>class()</code> function to check the class it should be of the matrix class:</p>
 <pre class="r"><code>class(A)</code></pre>
 <pre><code>## [1] &quot;matrix&quot;</code></pre>
 <p>This can be important because if matrix operations aren’t working it may be that our object is a data.frame or tibble.</p>
+<p>Many of the commands we are used to using on other objects continue to work with matrices. We can add a row or add a column:</p>
+<pre class="r"><code>## add a row
+A &lt;- rbind(A,c(10,11,12))
+A</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    2    3
+## [2,]    4    5    6
+## [3,]    7    8    9
+## [4,]   10   11   12</code></pre>
+<pre class="r"><code>## add a column
+A &lt;- cbind(A,c(10,20,30,40))
+A</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]    1    2    3   10
+## [2,]    4    5    6   20
+## [3,]    7    8    9   30
+## [4,]   10   11   12   40</code></pre>
+<p>To access specific elements, rows or columns we use square brackets always specifying row first then column. Currently our <code>A</code> matrix has 4 rows and 4 columns.</p>
+<pre class="r"><code># element in the 2nd row, 3rd column
+A[2,3]</code></pre>
+<pre><code>## [1] 6</code></pre>
+<p>To return the mth row:</p>
+<pre class="r"><code># return the entire 3rd row
+A[3,]</code></pre>
+<pre><code>## [1]  7  8  9 30</code></pre>
+<p>To return the nth column:</p>
+<pre class="r"><code># return the entire 4th column
+A[,4]</code></pre>
+<pre><code>## [1] 10 20 30 40</code></pre>
+<p>If we want to multiply the matrix by a scaler:</p>
+<pre class="r"><code>A*2</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]    2    4    6   20
+## [2,]    8   10   12   40
+## [3,]   14   16   18   60
+## [4,]   20   22   24   80</code></pre>
+<p>Let’s make a 2nd matrix, this time a 4X4 identity matrix:</p>
+<pre class="r"><code>B &lt;- diag(c(1,1,1,1))</code></pre>
+<p>To multiply matrices use <code>%*%</code></p>
+<pre class="r"><code>A%*%B</code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]    1    2    3   10
+## [2,]    4    5    6   20
+## [3,]    7    8    9   30
+## [4,]   10   11   12   40</code></pre>
+<p>Note, that the dimensions must match just like with normal matrix operations. So if we have a matrix that is only 3X3 we will get an error that the arguments are non-comformable.</p>
+<pre class="r"><code>C &lt;- matrix(rep(1,8), nrow = 2, ncol = 4)</code></pre>
+<pre class="r"><code>A%*%C</code></pre>
+<p>We can transpose a matrix</p>
+<pre class="r"><code>C &lt;- t(C)</code></pre>
+<p>Now because we have a matrix that is 4X4 and a matrix that is 4X2 our matrix multiplication will work</p>
+<pre class="r"><code>A%*%C</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]   16   16
+## [2,]   35   35
+## [3,]   54   54
+## [4,]   73   73</code></pre>
+<p>To return the inverse of a matrix use solve</p>
+<pre class="r"><code>A &lt;- matrix(1:4,nrow=2,ncol=2)
+A</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    1    3
+## [2,]    2    4</code></pre>
+<pre class="r"><code>solve(A)</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]   -2  1.5
+## [2,]    1 -0.5</code></pre>
+<p>You can convert a data.frame to a matrix in order to use matrix operations</p>
+<pre class="r"><code>mtcars_matrix &lt;- matrix(mtcars)
+class(mtcars_matrix)</code></pre>
+<pre><code>## [1] &quot;matrix&quot;</code></pre>
+</div>
+<div id="gapminder" class="section level2">
+<h2>Gapminder</h2>
+<p>Let’s switch gears and look at the gapminder data.</p>
+<pre class="r"><code>library(gapminder)</code></pre>
+<p>We will look at the relationship between life expectancy and year controlling for country, population, and GDP per capita. We expect that life expectancy has increased as time has passed. First, will start with a scatter plot to descriptively look at the relationship.</p>
+<pre class="r"><code>library(ggplot2)
+ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
+  geom_point() +
+  ylab(&#39;Life Expectancy&#39;) +
+  xlab(&#39;Year&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+We can add a fittted line</p>
+<pre class="r"><code>ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
+  geom_point() +
+  geom_smooth(method=&#39;loess&#39;, color = &#39;blue&#39;, se=FALSE) +
+  ylab(&#39;Life Expectancy&#39;) +
+  xlab(&#39;Year&#39;) +
+  theme_bw()</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+It looks like there is a positive relationship between year and life expectancy. Now we will fit a linear model of the form:
+<span class="math display">\[y = \beta_0 + \beta X\]</span></p>
+<pre class="r"><code>gapminder$year &lt;- as.factor(gapminder$year) # convert to factor for year fixed effects
+gapminder$pop_log &lt;- log(gapminder$pop) # make a logged population variable
+fit &lt;- lm(lifeExp ~ country + year + pop_log + gdpPercap, data = gapminder)</code></pre>
 </div>

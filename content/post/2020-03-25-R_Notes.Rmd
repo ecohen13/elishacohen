@@ -65,6 +65,8 @@ A%*%B
 Note, that the dimensions must match just like with normal matrix operations. So if we have a matrix that is only 3X3 we will get an error that the arguments are non-comformable.
 ```{r}
 C <- matrix(rep(1,8), nrow = 2, ncol = 4)
+```
+```{r,eval=FALSE}
 A%*%C
 ```
 We can transpose a matrix
@@ -81,5 +83,42 @@ A <- matrix(1:4,nrow=2,ncol=2)
 A
 solve(A)
 ```
+You can convert a data.frame to a matrix in order to use matrix operations
+```{r}
+mtcars_matrix <- matrix(mtcars)
+class(mtcars_matrix)
+```
 
+## Gapminder
+Let's switch gears and look at the gapminder data.
+```{r}
+library(gapminder)
+```
 
+We will look at the relationship between life expectancy and year controlling for country, population, and GDP per capita. We expect that life expectancy has increased as time has passed. First, will start with a scatter plot to descriptively look at the relationship.
+
+```{r}
+library(ggplot2)
+ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
+  geom_point() +
+  ylab('Life Expectancy') +
+  xlab('Year') +
+  theme_bw()
+```
+We can add a fittted line
+```{r}
+ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
+  geom_point() +
+  geom_smooth(method='loess', color = 'blue', se=FALSE) +
+  ylab('Life Expectancy') +
+  xlab('Year') +
+  theme_bw()
+```
+It looks like there is a positive relationship between year and life expectancy. Now we will fit a linear model of the form:
+$$y = \beta_0 + \beta X$$
+
+```{r}
+gapminder$year <- as.factor(gapminder$year) # convert to factor for year fixed effects
+gapminder$pop_log <- log(gapminder$pop) # make a logged population variable
+fit <- lm(lifeExp ~ country + year + pop_log + gdpPercap, data = gapminder)
+```
