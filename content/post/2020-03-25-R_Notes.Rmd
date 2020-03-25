@@ -1,5 +1,5 @@
 ---
-title: "R Notes March 25,2020"
+title: "R Notes March 25, 2020"
 author: "Elisha Cohen"
 output: html_document
 ---
@@ -13,7 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 We can start by creating a 3X3 matrix and filling it with the numbers 1 to 9:
 
 ```{r c1}
-A <- matrix(1:9, nrow = 3, ncol = 3)
+A <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
+A
 ```
 
 If we use the `class()` function to check the class it should be of the matrix class:
@@ -22,3 +23,63 @@ If we use the `class()` function to check the class it should be of the matrix c
 class(A)
 ```
 This can be important because if matrix operations aren't working it may be that our object is a data.frame or tibble.
+
+Many of the commands we are used to using on other objects continue to work with matrices. We can add a row or add a column:
+
+```{r c3}
+## add a row
+A <- rbind(A,c(10,11,12))
+A
+## add a column
+A <- cbind(A,c(10,20,30,40))
+A
+```
+
+To access specific elements, rows or columns we use square brackets always specifying row first then column. Currently our `A` matrix has 4 rows and 4 columns.
+```{r c4}
+# element in the 2nd row, 3rd column
+A[2,3]
+```
+To return the mth row:
+```{r}
+# return the entire 3rd row
+A[3,]
+```
+To return the nth column:
+```{r}
+# return the entire 4th column
+A[,4]
+```
+If we want to multiply the matrix by a scaler:
+```{r}
+A*2
+```
+Let's make a 2nd matrix, this time a 4X4 identity matrix:
+```{r}
+B <- diag(c(1,1,1,1))
+```
+To multiply matrices use `%*%`
+```{r}
+A%*%B
+```
+Note, that the dimensions must match just like with normal matrix operations. So if we have a matrix that is only 3X3 we will get an error that the arguments are non-comformable.
+```{r}
+C <- matrix(rep(1,8), nrow = 2, ncol = 4)
+A%*%C
+```
+We can transpose a matrix
+```{r}
+C <- t(C)
+```
+Now because we have a matrix that is 4X4 and a matrix that is 4X2 our matrix multiplication will work
+```{r}
+A%*%C
+```
+To return the inverse of a matrix use solve
+```{r}
+A <- matrix(1:4,nrow=2,ncol=2)
+A
+solve(A)
+```
+
+
