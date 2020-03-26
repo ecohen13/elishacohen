@@ -24,8 +24,7 @@ googleAnalytics = ""
 
 # Name of Academic theme folder in `themes/`.
 theme = "hugo-academic"
-# so math works
-math = true
+
 # Get last modified date for content from Git?
 enableGitInfo = false
 
