@@ -130,11 +130,11 @@ ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
 
 Now we will fit a linear model of the form:
 $$y = \beta_0 + X \beta + \epsilon$$
-where $X$ is 1706 X 4 matrix because there are 1706 observations (rows) and 4 variables. We can use the built in function `lm()` to run a linear model with life expectancy as our dependent variable. First, convert the population variable into a logged value.
+where $X$ is a 1706 X 4 matrix because there are 1706 observations (rows) and 4 variables. We can use the built in function `lm()` to run a linear model with life expectancy as our dependent variable. First, convert the population variable into a logged value.
 ```{r}
 gapminder$pop_log <- log(gapminder$pop) # make a logged population variable
 ```
-Then use estimate the linear model
+Then estimate the linear model
 $$\hat{y} = \hat{\beta}_0 + X\hat{\beta}$$
 ```{r}
 fit <- lm(lifeExp ~ year + country + pop_log + gdpPercap, data = gapminder)
@@ -163,9 +163,9 @@ predict_US1952;predict_US2007
 We can also extract the variance-covariance matrix from our regression results
 ```{r}
 fit_vcov <- vcov(fit)
-fit_vcov[1:5,1:5]
+fit_vcov[1:3,1:3]
 #extract standard errors
 se <- summary(fit)$coefficients[,2] # we want 2nd column
-head(se^2)
+head(se^2,3)
 ```
 The variance-covariance matrix has the variance along the diagonal and we can see that it matches the variance.
