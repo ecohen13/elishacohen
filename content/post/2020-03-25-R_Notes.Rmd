@@ -67,7 +67,7 @@ Note, that the dimensions must match just like with normal matrix operations. So
 ```{r}
 C <- matrix(rep(1,8), nrow = 2, ncol = 4)
 ```
-```{r,eval=FALSE}
+```{r,error=TRUE}
 A%*%C
 ```
 We can transpose a matrix
