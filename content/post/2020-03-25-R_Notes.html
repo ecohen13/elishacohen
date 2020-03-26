@@ -101,9 +101,18 @@ class(mtcars_matrix)</code></pre>
 <h2>Gapminder</h2>
 <p>Let’s switch gears and look at the gapminder data.</p>
 <pre class="r"><code>library(gapminder)</code></pre>
-<p>We will look at the relationship between life expectancy and year controlling for country, population, and GDP per capita. We expect that life expectancy has increased as time has passed. First, will start with a scatter plot to descriptively look at the relationship.</p>
+<p>We will look at the relationship between life expectancy and year controlling for population, and GDP per capita. We expect that life expectancy has increased as time has passed. First, will start with a scatter plot to descriptively look at the relationship. This plots the life expectance of all countries over time.</p>
 <pre class="r"><code>library(ggplot2)
-ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   geom_point() +
   ylab(&#39;Life Expectancy&#39;) +
   xlab(&#39;Year&#39;) +
@@ -116,11 +125,63 @@ We can add a fitted line</p>
   ylab(&#39;Life Expectancy&#39;) +
   xlab(&#39;Year&#39;) +
   theme_bw()</code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
 <p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-14-1.png" width="672" />
-It looks like there is a positive relationship between year and life expectancy. Now we will fit a linear model of the form:
-<span class="math display">\[y = \beta_0 + \beta X\]</span></p>
-<pre class="r"><code>gapminder$year &lt;- as.factor(gapminder$year) # convert to factor for year fixed effects
-gapminder$pop_log &lt;- log(gapminder$pop) # make a logged population variable
-fit &lt;- lm(lifeExp ~ country + year + pop_log + gdpPercap, data = gapminder)</code></pre>
+It looks like there is a positive relationship between year and life expectancy.</p>
+<p>We can also fit a regression line using <code>ggplot2</code></p>
+<pre class="r"><code>ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
+  geom_point() +
+  geom_smooth(method=&#39;lm&#39;, color = &#39;blue&#39;, se=FALSE) +
+  ylab(&#39;Life Expectancy&#39;) +
+  xlab(&#39;Year&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>Now we will fit a linear model of the form:
+<span class="math display">\[y = \beta_0 + X \beta + \epsilon\]</span>
+where <span class="math inline">\(X\)</span> is 1706 X 4 matrix because there are 1706 observations (rows) and 4 variables. We can use the built in function <code>lm()</code> to run a linear model with life expectancy as our dependent variable. First, convert the population variable into a logged value.</p>
+<pre class="r"><code>gapminder$pop_log &lt;- log(gapminder$pop) # make a logged population variable</code></pre>
+<p>Then use estimate the linear model
+<span class="math display">\[\hat{y} = \hat{\beta}_0 + X\hat{\beta}\]</span></p>
+<pre class="r"><code>fit &lt;- lm(lifeExp ~ year + country + pop_log + gdpPercap, data = gapminder)</code></pre>
+<p>There are two functions we can use to get the fitted values</p>
+<pre class="r"><code>gapminder$yhat &lt;- fit$fitted.values
+gapminder$yhat &lt;- fitted.values(fit)</code></pre>
+<p>We can check that the difference between our observed <span class="math inline">\(y\)</span> and our <span class="math inline">\(\hat{y}\)</span> is equal to our residuals.</p>
+<pre class="r"><code>r &lt;- gapminder$lifeExp - gapminder$yhat
+resid &lt;- as.numeric(fit$residuals)
+all.equal(r, resid)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>What is the predicted life expectancy for the United States in 1952 and in 2007?</p>
+<pre class="r"><code>US1952 &lt;- gapminder %&gt;% filter(country==&#39;United States&#39; &amp; year==1952)
+predict_US1952 &lt;- predict(fit, newdata = US1952)
+
+US2007 &lt;- gapminder %&gt;% filter(country==&#39;United States&#39; &amp; year==2007)
+predict_US2007 &lt;- predict(fit, newdata = US2007)
+predict_US1952;predict_US2007</code></pre>
+<pre><code>##        1 
+## 65.42543</code></pre>
+<pre><code>##        1 
+## 81.42597</code></pre>
+<p>We can also extract the variance-covariance matrix from our regression results</p>
+<pre class="r"><code>fit_vcov &lt;- vcov(fit)
+fit_vcov[1:5,1:5]</code></pre>
+<pre><code>##                (Intercept)          year countryAlbania countryAlgeria
+## (Intercept)    336.2333899 -0.2375184633    13.06769134   -3.573696857
+## year            -0.2375185  0.0001746932    -0.01129847    0.002037835
+## countryAlbania  13.0676913 -0.0112984741     2.73849906    0.784344870
+## countryAlgeria  -3.5736969  0.0020378347     0.78434487    1.883488665
+## countryAngola    4.5228553 -0.0044446895     1.28236060    0.872367565
+##                countryAngola
+## (Intercept)       4.52285525
+## year             -0.00444469
+## countryAlbania    1.28236060
+## countryAlgeria    0.87236757
+## countryAngola     1.99868070</code></pre>
+<pre class="r"><code>#extract standard errors
+se &lt;- summary(fit)$coefficients[,2] # we want 2nd column
+head(se^2)</code></pre>
+<pre><code>##      (Intercept)             year   countryAlbania   countryAlgeria 
+##     3.362334e+02     1.746932e-04     2.738499e+00     1.883489e+00 
+##    countryAngola countryArgentina 
+##     1.998681e+00     2.063132e+00</code></pre>
+<p>The variance-covariance matrix has the variance along the diagonal and we can see that it matches the variance.</p>
 </div>

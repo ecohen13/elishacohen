@@ -96,10 +96,11 @@ Let's switch gears and look at the gapminder data.
 library(gapminder)
 ```
 
-We will look at the relationship between life expectancy and year controlling for country, population, and GDP per capita. We expect that life expectancy has increased as time has passed. First, will start with a scatter plot to descriptively look at the relationship.
+We will look at the relationship between life expectancy and year controlling for population, and GDP per capita. We expect that life expectancy has increased as time has passed. First, will start with a scatter plot to descriptively look at the relationship. This plots the life expectance of all countries over time.
 
 ```{r}
 library(ggplot2)
+library(dplyr)
 ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   geom_point() +
   ylab('Life Expectancy') +
@@ -107,7 +108,7 @@ ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   theme_bw()
 ```
 We can add a fitted line
-```{r}
+```{r,message=FALSE}
 ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   geom_point() +
   geom_smooth(method='loess', color = 'blue', se=FALSE) +
@@ -115,11 +116,56 @@ ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
   xlab('Year') +
   theme_bw()
 ```
-It looks like there is a positive relationship between year and life expectancy. Now we will fit a linear model of the form:
-$$y = \beta_0 + \beta X$$
+It looks like there is a positive relationship between year and life expectancy. 
 
-```{r}
-gapminder$year <- as.factor(gapminder$year) # convert to factor for year fixed effects
-gapminder$pop_log <- log(gapminder$pop) # make a logged population variable
-fit <- lm(lifeExp ~ country + year + pop_log + gdpPercap, data = gapminder)
+We can also fit a regression line using `ggplot2`
+```{r,message=FALSE}
+ggplot(data = gapminder, aes(x = year, y = lifeExp)) +
+  geom_point() +
+  geom_smooth(method='lm', color = 'blue', se=FALSE) +
+  ylab('Life Expectancy') +
+  xlab('Year') +
+  theme_bw()
 ```
+
+Now we will fit a linear model of the form:
+$$y = \beta_0 + X \beta + \epsilon$$
+where $X$ is 1706 X 4 matrix because there are 1706 observations (rows) and 4 variables. We can use the built in function `lm()` to run a linear model with life expectancy as our dependent variable. First, convert the population variable into a logged value.
+```{r}
+gapminder$pop_log <- log(gapminder$pop) # make a logged population variable
+```
+Then use estimate the linear model
+$$\hat{y} = \hat{\beta}_0 + X\hat{\beta}$$
+```{r}
+fit <- lm(lifeExp ~ year + country + pop_log + gdpPercap, data = gapminder)
+```
+There are two functions we can use to get the fitted values
+```{r}
+gapminder$yhat <- fit$fitted.values
+gapminder$yhat <- fitted.values(fit)
+```
+We can check that the difference between our observed $y$ and our $\hat{y}$ is equal to our residuals.
+```{r}
+r <- gapminder$lifeExp - gapminder$yhat
+resid <- as.numeric(fit$residuals)
+all.equal(r, resid)
+```
+
+What is the predicted life expectancy for the United States in 1952 and in 2007?
+```{r}
+US1952 <- gapminder %>% filter(country=='United States' & year==1952)
+predict_US1952 <- predict(fit, newdata = US1952)
+
+US2007 <- gapminder %>% filter(country=='United States' & year==2007)
+predict_US2007 <- predict(fit, newdata = US2007)
+predict_US1952;predict_US2007
+```
+We can also extract the variance-covariance matrix from our regression results
+```{r}
+fit_vcov <- vcov(fit)
+fit_vcov[1:5,1:5]
+#extract standard errors
+se <- summary(fit)$coefficients[,2] # we want 2nd column
+head(se^2)
+```
+The variance-covariance matrix has the variance along the diagonal and we can see that it matches the variance.
