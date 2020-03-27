@@ -8,6 +8,7 @@ header-includes:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(texreg)
 ```
 
 ## Matrices in R!
@@ -246,10 +247,11 @@ scalar <- 2
 x <- rep(1:100,2)
 sigma2 <- x^scalar
 eps <- rnorm(x,mean=0,sd=sqrt(sigma2))
-y <- 0+1*x + eps
+beta0 <- 3
+beta1 <- 1
+y <- beta0+beta1*x + eps
 # fit linear model
 fit_lm <- lm(y ~ x)
-summary(fit_lm)
 resid <- summary(fit_lm)$residuals
 yhat <- fit_lm$fitted.values
 # plot the residuals compared to x variable
@@ -274,8 +276,12 @@ fit_resid_yhat <- lm(abs(resid) ~ yhat)
 fitted <- fit_resid_yhat$fitted.values
 w <- 1/(fitted^2)
 fit_wls <- lm(y ~ x, weights = w)
-summary(fit_wls)
 ```
+
+```{r,results='asis',message=F,warning=F}
+htmlreg(list(fit_lm,fit_wls),custom.model.names = c("OLS","WLS"),doctype = F)
+```
+Both models estimate $\beta_1$ pretty well. However, we've simulated the data with intercept equal to `r beta0` but we see that the OLS estimate of the intercept is `r round(summary(fit_lm)$coefficients[1,1],2)` while the WLS estimate of the intercept is closer at `r round(summary(fit_wls)$coefficients[1,1],2)`. Also note the big decrease in root mean squared error (RMSE) in the WLS model.
 
 Plot both:
 ```{r,message=FALSE}
@@ -286,7 +292,7 @@ ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
   theme_bw()
 ```
 
-Again, we see that the WLS shifts slightly compared to OLS in order to down weight observations with extreme variances.
+Again, we see that the WLS shifts slightly compared to OLS in order to down weight observations with extreme variances. 
 
 Note, that there are different ways to estimate the residuals. We can do it as in part 1 as the reciprocal of a specific predictor. Alternatively, the variances may be close to constant within specific subsets of a predictor. Or we might first estimate the OLS model and then use the residuals to help us estimate weights.
 

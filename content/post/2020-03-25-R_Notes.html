@@ -274,29 +274,12 @@ scalar &lt;- 2
 x &lt;- rep(1:100,2)
 sigma2 &lt;- x^scalar
 eps &lt;- rnorm(x,mean=0,sd=sqrt(sigma2))
-y &lt;- 0+1*x + eps
+beta0 &lt;- 3
+beta1 &lt;- 1
+y &lt;- beta0+beta1*x + eps
 # fit linear model
 fit_lm &lt;- lm(y ~ x)
-summary(fit_lm)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = y ~ x)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -163.592  -37.628    2.638   29.867  188.546 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  -5.5984     8.5041  -0.658    0.511    
-## x             1.2992     0.1462   8.886 3.89e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 59.68 on 198 degrees of freedom
-## Multiple R-squared:  0.2851, Adjusted R-squared:  0.2815 
-## F-statistic: 78.97 on 1 and 198 DF,  p-value: 3.89e-16</code></pre>
-<pre class="r"><code>resid &lt;- summary(fit_lm)$residuals
+resid &lt;- summary(fit_lm)$residuals
 yhat &lt;- fit_lm$fitted.values
 # plot the residuals compared to x variable
 ggplot(data.frame(x,resid),aes(x = x, y = resid)) +
@@ -316,33 +299,123 @@ fit_resid_yhat &lt;- lm(abs(resid) ~ yhat)
 # take fitted value of these
 fitted &lt;- fit_resid_yhat$fitted.values
 w &lt;- 1/(fitted^2)
-fit_wls &lt;- lm(y ~ x, weights = w)
-summary(fit_wls)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = y ~ x, weights = w)
-## 
-## Weighted Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -2.98623 -0.79194  0.02907  0.77719  2.79577 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) -1.17570    2.26133   -0.52    0.604    
-## x            1.19704    0.09662   12.39   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 1.184 on 198 degrees of freedom
-## Multiple R-squared:  0.4367, Adjusted R-squared:  0.4338 
-## F-statistic: 153.5 on 1 and 198 DF,  p-value: &lt; 2.2e-16</code></pre>
+fit_wls &lt;- lm(y ~ x, weights = w)</code></pre>
+<pre class="r"><code>htmlreg(list(fit_lm,fit_wls),custom.model.names = c(&quot;OLS&quot;,&quot;WLS&quot;),doctype = F)</code></pre>
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="bottom" style="margin-top:0.3em;">
+Statistical models
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>OLS</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>WLS</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+-2.60
+</td>
+<td style="padding-right: 12px; border: none;">
+1.82
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(8.50)
+</td>
+<td style="padding-right: 12px; border: none;">
+(2.26)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+x
+</td>
+<td style="padding-right: 12px; border: none;">
+1.30<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+1.20<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.15)
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.10)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="border-top: 1px solid black;">
+0.29
+</td>
+<td style="border-top: 1px solid black;">
+0.44
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Adj. R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.28
+</td>
+<td style="padding-right: 12px; border: none;">
+0.43
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Num. obs.
+</td>
+<td style="padding-right: 12px; border: none;">
+200
+</td>
+<td style="padding-right: 12px; border: none;">
+200
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+RMSE
+</td>
+<td style="border-bottom: 2px solid black;">
+59.68
+</td>
+<td style="border-bottom: 2px solid black;">
+1.18
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="4">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
+</td>
+</tr>
+</table>
+<p>Both models estimate <span class="math inline">\(\beta_1\)</span> pretty well. However, we’ve simulated the data with intercept equal to 3 but we see that the OLS estimate of the intercept is -2.6 while the WLS estimate of the intercept is closer at 1.82. Also note the big decrease in root mean squared error (RMSE) in the WLS model.</p>
 <p>Plot both:</p>
 <pre class="r"><code>ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
   geom_point() +
   geom_smooth(method=lm,se=FALSE,color=&#39;red&#39;) +
   geom_smooth(method=lm,aes(weight=w),color=&#39;blue&#39;,se=FALSE) +
   theme_bw()</code></pre>
-<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
 <p>Again, we see that the WLS shifts slightly compared to OLS in order to down weight observations with extreme variances.</p>
 <p>Note, that there are different ways to estimate the residuals. We can do it as in part 1 as the reciprocal of a specific predictor. Alternatively, the variances may be close to constant within specific subsets of a predictor. Or we might first estimate the OLS model and then use the residuals to help us estimate weights.</p>
 </div>
