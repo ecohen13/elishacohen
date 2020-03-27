@@ -2,6 +2,8 @@
 title: "R Notes March 25, 2020"
 author: "Elisha Cohen"
 output: html_document
+header-includes:
+    - \usepackage{amsmath}
 ---
 
 ```{r setup, include=FALSE}
@@ -169,3 +171,123 @@ se <- summary(fit)$coefficients[,2] # we want 2nd column
 head(se^2,3)
 ```
 The variance-covariance matrix has the variance along the diagonal and we can see that it matches the variance.
+
+## Weighted Least Squares
+
+We can show that the traditional OLS estimator is unbiased and linear. We are estimating the expectation of $\hat{\beta}$ and assuming that there is constant error variance $\epsilon_i \sim \mathcal{N}(0,\sigma^2)$. This model assumes $\text{Var}(\epsilon_i) = \sigma^2$ for $i = 1, \dots, n$. In other words, the variance of the residual $\epsilon_i$ for each observation $i$ is equal to $\sigma^2$.
+
+However, if we think there are nonconstant error variances $\epsilon_i \sim \mathcal{N}(0, \sigma_{i}^2)$, we can use Weighted-least squares (WLS) as an alternative estimation method. Here we assume $\text{Var}(\epsilon_i) = \frac{\sigma^2}{w_i}$ where the weights $w_1, \dots w_n$ are known positive constants.
+
+### General Weighted Least Squares Solution
+
+Let $W$ be a diagonal matrix with diagonal elements equal to $w_1, \dots w_n$.
+
+\[
+W = \begin{bmatrix} 
+    w_{1} & 0 & 0 \\
+    0 & \ddots & 0\\
+    0 &   0    & w_{n} 
+    \end{bmatrix}
+\]
+Weighted residual sum of squares
+\[S_w(\beta) = \sum_{i=1}^n w_i(y_i - x_{i}^t \beta)^2 = (Y - X\beta)^t W (Y-X\beta)\]
+WLS estimates $\beta$ by minimizing the weighted sum of squares. The general solution is:
+\[\hat{\beta} = (X^t W X)^{-1}X^t WY\]
+
+### The weights
+To use WLS we need to know the weights.
+
+1. We may have a probabilistic model in mind for the weights where $\text{Var}(Y|X=x_i)$. For example we may think that the errors are proportional to a specific explanatory variable $x_i$. Then we could use the reciprocal of this to estimate the weights: $w_i = 1/x_i$.
+
+For example let's simulate data from a Poisson distribution.
+```{r,message = FALSE}
+set.seed(12345)
+x <- rpois(100, lambda = 2) 
+y <- 3 + 4*x + rnorm(100, sd=2*x)
+ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
+  geom_point() +
+  geom_smooth(method=lm,se=FALSE) +
+  theme_bw()
+```
+
+Notice how the variance in $y$ gets larger as $x$ gets larger. Now if we estimate a non-weighted linear regression:
+```{r}
+fit_lm <- lm(y ~ x)
+summary(fit_lm)
+```
+
+Our $\hat{\beta}$ estimate is `r round(summary(fit_lm)$coefficients[2,1],3)` which is close to 4.
+
+Now let's estimate using WLS:
+
+```{r}
+w <- 1/x #note there are 100 weights, one for each observation
+w[w=='Inf'] <- 0 #fix any weights that occurred because 1/0 doesn't exist
+fit_wls <- lm(y ~ x, weights = w)
+summary(fit_wls)
+```
+
+Again, `r round(summary(fit_wls)$coefficients[2,1],3)` is close to the true value of 4. If we look at a plot we can see that the weighted line in blue is above the red line as $x$ gets larger. This is because the variance is getting larger and the WLS is downweighting these observations.
+
+```{r,message=F}
+ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
+  geom_point() +
+  geom_smooth(method=lm,se=FALSE,color='red') +
+  geom_smooth(method=lm,aes(weight=w),color='blue',se=FALSE) +
+  theme_bw()
+```
+
+2. Usually we do not know the weights nor the structure of $W$ so we will first estimate the OLS regression. 
+ 
+Simulate data with non-constant errors:
+```{r}
+set.seed(12345)
+scalar <- 2
+x <- rep(1:100,2)
+sigma2 <- x^scalar
+eps <- rnorm(x,mean=0,sd=sqrt(sigma2))
+y <- 0+1*x + eps
+# fit linear model
+fit_lm <- lm(y ~ x)
+summary(fit_lm)
+resid <- summary(fit_lm)$residuals
+yhat <- fit_lm$fitted.values
+# plot the residuals compared to x variable
+ggplot(data.frame(x,resid),aes(x = x, y = resid)) +
+  geom_point() +
+  geom_hline(yintercept=0,color='green',linetype='dashed') +
+  theme_bw()
+```
+
+Looking at the plot of residuals compared to x values we see that as x gets larger so do the residuals.
+
+There are different ways to calculate the weights using residuals. Here we are going to do the following steps:
+
+- regress the residuals on the fitted values from the OLS model
+- extract the fitted values from this regression
+- use these fitted values squared as estimates of $\sigma_{i}^2$ therefore we can estimate the weights as 1 over the square of the fitted values ($w_i = 1/\sigma_{i}^2$)
+
+```{r}
+# regress residuals on fitted values
+fit_resid_yhat <- lm(abs(resid) ~ yhat)
+# take fitted value of these
+fitted <- fit_resid_yhat$fitted.values
+w <- 1/(fitted^2)
+fit_wls <- lm(y ~ x, weights = w)
+summary(fit_wls)
+```
+
+Plot both:
+```{r,message=FALSE}
+ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
+  geom_point() +
+  geom_smooth(method=lm,se=FALSE,color='red') +
+  geom_smooth(method=lm,aes(weight=w),color='blue',se=FALSE) +
+  theme_bw()
+```
+
+Again, we see that the WLS shifts slightly compared to OLS in order to down weight observations with extreme variances.
+
+Note, that there are different ways to estimate the residuals. We can do it as in part 1 as the reciprocal of a specific predictor. Alternatively, the variances may be close to constant within specific subsets of a predictor. Or we might first estimate the OLS model and then use the residuals to help us estimate weights.
+
+

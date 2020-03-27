@@ -2,7 +2,10 @@
 title: "R Notes March 25, 2020"
 author: "Elisha Cohen"
 output: html_document
+header-includes:
+    - \usepackage{amsmath}
 ---
+
 
 
 
@@ -73,6 +76,7 @@ B</code></pre>
 <p>Note, that the dimensions must match just like with normal matrix operations. So if we have a matrix that is only 3X3 we will get an error that the arguments are non-comformable.</p>
 <pre class="r"><code>C &lt;- matrix(rep(1,8), nrow = 2, ncol = 4)</code></pre>
 <pre class="r"><code>A%*%C</code></pre>
+<pre><code>## Error in A %*% C: non-conformable arguments</code></pre>
 <p>We can transpose a matrix</p>
 <pre class="r"><code>C &lt;- t(C)</code></pre>
 <p>Now because we have a matrix that is 4X4 and a matrix that is 4X2 our matrix multiplication will work</p>
@@ -174,4 +178,172 @@ head(se^2,3)</code></pre>
 <pre><code>##    (Intercept)           year countryAlbania 
 ##   3.362334e+02   1.746932e-04   2.738499e+00</code></pre>
 <p>The variance-covariance matrix has the variance along the diagonal and we can see that it matches the variance.</p>
+</div>
+<div id="weighted-least-squares" class="section level2">
+<h2>Weighted Least Squares</h2>
+<p>We can show that the traditional OLS estimator is unbiased and linear. We are estimating the expectation of <span class="math inline">\(\hat{\beta}\)</span> and assuming that there is constant error variance <span class="math inline">\(\epsilon_i \sim \mathcal{N}(0,\sigma^2)\)</span>. This model assumes <span class="math inline">\(\text{Var}(\epsilon_i) = \sigma^2\)</span> for <span class="math inline">\(i = 1, \dots, n\)</span>. In other words, the variance of the residual <span class="math inline">\(\epsilon_i\)</span> for each observation <span class="math inline">\(i\)</span> is equal to <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>However, if we think there are nonconstant error variances <span class="math inline">\(\epsilon_i \sim \mathcal{N}(0, \sigma_{i}^2)\)</span>, we can use Weighted-least squares (WLS) as an alternative estimation method. Here we assume <span class="math inline">\(\text{Var}(\epsilon_i) = \frac{\sigma^2}{w_i}\)</span> where the weights <span class="math inline">\(w_1, \dots w_n\)</span> are known positive constants.</p>
+<div id="general-weighted-least-squares-solution" class="section level3">
+<h3>General Weighted Least Squares Solution</h3>
+<p>Let <span class="math inline">\(W\)</span> be a diagonal matrix with diagonal elements equal to <span class="math inline">\(w_1, \dots w_n\)</span>.</p>
+<p><span class="math display">\[
+W = \begin{bmatrix} 
+    w_{1} &amp; 0 &amp; 0 \\
+    0 &amp; \ddots &amp; 0\\
+    0 &amp;   0    &amp; w_{n} 
+    \end{bmatrix}
+\]</span>
+Weighted residual sum of squares
+<span class="math display">\[S_w(\beta) = \sum_{i=1}^n w_i(y_i - x_{i}^t \beta)^2 = (Y - X\beta)^t W (Y-X\beta)\]</span>
+WLS estimates <span class="math inline">\(\beta\)</span> by minimizing the weighted sum of squares. The general solution is:
+<span class="math display">\[\hat{\beta} = (X^t W X)^{-1}X^t WY\]</span></p>
+</div>
+<div id="the-weights" class="section level3">
+<h3>The weights</h3>
+<p>To use WLS we need to know the weights.</p>
+<ol style="list-style-type: decimal">
+<li>We may have a probabilistic model in mind for the weights where <span class="math inline">\(\text{Var}(Y|X=x_i)\)</span>. For example we may think that the errors are proportional to a specific explanatory variable <span class="math inline">\(x_i\)</span>. Then we could use the reciprocal of this to estimate the weights: <span class="math inline">\(w_i = 1/x_i\)</span>.</li>
+</ol>
+<p>For example let’s simulate data from a Poisson distribution.</p>
+<pre class="r"><code>set.seed(12345)
+x &lt;- rpois(100, lambda = 2) 
+y &lt;- 3 + 4*x + rnorm(100, sd=2*x)
+ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
+  geom_point() +
+  geom_smooth(method=lm,se=FALSE) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>Notice how the variance in <span class="math inline">\(y\)</span> gets larger as <span class="math inline">\(x\)</span> gets larger. Now if we estimate a non-weighted linear regression:</p>
+<pre class="r"><code>fit_lm &lt;- lm(y ~ x)
+summary(fit_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -29.4022  -2.9553  -0.7186   2.5219  18.7514 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3.7186     1.1052   3.365   0.0011 ** 
+## x             4.0867     0.4305   9.492 1.53e-15 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6.417 on 98 degrees of freedom
+## Multiple R-squared:  0.479,  Adjusted R-squared:  0.4737 
+## F-statistic: 90.11 on 1 and 98 DF,  p-value: 1.53e-15</code></pre>
+<p>Our <span class="math inline">\(\hat{\beta}\)</span> estimate is 4.087 which is close to 4.</p>
+<p>Now let’s estimate using WLS:</p>
+<pre class="r"><code>w &lt;- 1/x #note there are 100 weights, one for each observation
+w[w==&#39;Inf&#39;] &lt;- 0 #fix any weights that occurred because 1/0 doesn&#39;t exist
+fit_wls &lt;- lm(y ~ x, weights = w)
+summary(fit_wls)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x, weights = w)
+## 
+## Weighted Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -12.492  -2.343   0.000   1.756   9.080 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3.1001     1.0529   2.944  0.00419 ** 
+## x             4.3894     0.5065   8.666 2.79e-13 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.793 on 84 degrees of freedom
+## Multiple R-squared:  0.472,  Adjusted R-squared:  0.4657 
+## F-statistic:  75.1 on 1 and 84 DF,  p-value: 2.791e-13</code></pre>
+<p>Again, 4.389 is close to the true value of 4. If we look at a plot we can see that the weighted line in blue is above the red line as <span class="math inline">\(x\)</span> gets larger. This is because the variance is getting larger and the WLS is downweighting these observations.</p>
+<pre class="r"><code>ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
+  geom_point() +
+  geom_smooth(method=lm,se=FALSE,color=&#39;red&#39;) +
+  geom_smooth(method=lm,aes(weight=w),color=&#39;blue&#39;,se=FALSE) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<ol start="2" style="list-style-type: decimal">
+<li>Usually we do not know the weights nor the structure of <span class="math inline">\(W\)</span> so we will first estimate the OLS regression.</li>
+</ol>
+<p>Simulate data with non-constant errors:</p>
+<pre class="r"><code>set.seed(12345)
+scalar &lt;- 2
+x &lt;- rep(1:100,2)
+sigma2 &lt;- x^scalar
+eps &lt;- rnorm(x,mean=0,sd=sqrt(sigma2))
+y &lt;- 0+1*x + eps
+# fit linear model
+fit_lm &lt;- lm(y ~ x)
+summary(fit_lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -163.592  -37.628    2.638   29.867  188.546 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  -5.5984     8.5041  -0.658    0.511    
+## x             1.2992     0.1462   8.886 3.89e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 59.68 on 198 degrees of freedom
+## Multiple R-squared:  0.2851, Adjusted R-squared:  0.2815 
+## F-statistic: 78.97 on 1 and 198 DF,  p-value: 3.89e-16</code></pre>
+<pre class="r"><code>resid &lt;- summary(fit_lm)$residuals
+yhat &lt;- fit_lm$fitted.values
+# plot the residuals compared to x variable
+ggplot(data.frame(x,resid),aes(x = x, y = resid)) +
+  geom_point() +
+  geom_hline(yintercept=0,color=&#39;green&#39;,linetype=&#39;dashed&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>Looking at the plot of residuals compared to x values we see that as x gets larger so do the residuals.</p>
+<p>There are different ways to calculate the weights using residuals. Here we are going to do the following steps:</p>
+<ul>
+<li>regress the residuals on the fitted values from the OLS model</li>
+<li>extract the fitted values from this regression</li>
+<li>use these fitted values squared as estimates of <span class="math inline">\(\sigma_{i}^2\)</span> therefore we can estimate the weights as 1 over the square of the fitted values (<span class="math inline">\(w_i = 1/\sigma_{i}^2\)</span>)</li>
+</ul>
+<pre class="r"><code># regress residuals on fitted values
+fit_resid_yhat &lt;- lm(abs(resid) ~ yhat)
+# take fitted value of these
+fitted &lt;- fit_resid_yhat$fitted.values
+w &lt;- 1/(fitted^2)
+fit_wls &lt;- lm(y ~ x, weights = w)
+summary(fit_wls)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x, weights = w)
+## 
+## Weighted Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.98623 -0.79194  0.02907  0.77719  2.79577 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.17570    2.26133   -0.52    0.604    
+## x            1.19704    0.09662   12.39   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.184 on 198 degrees of freedom
+## Multiple R-squared:  0.4367, Adjusted R-squared:  0.4338 
+## F-statistic: 153.5 on 1 and 198 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>Plot both:</p>
+<pre class="r"><code>ggplot(data = data.frame(x,y),aes(x=x,y=y)) +
+  geom_point() +
+  geom_smooth(method=lm,se=FALSE,color=&#39;red&#39;) +
+  geom_smooth(method=lm,aes(weight=w),color=&#39;blue&#39;,se=FALSE) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-03-25-R_Notes_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p>Again, we see that the WLS shifts slightly compared to OLS in order to down weight observations with extreme variances.</p>
+<p>Note, that there are different ways to estimate the residuals. We can do it as in part 1 as the reciprocal of a specific predictor. Alternatively, the variances may be close to constant within specific subsets of a predictor. Or we might first estimate the OLS model and then use the residuals to help us estimate weights.</p>
+</div>
 </div>
