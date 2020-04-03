@@ -11,7 +11,7 @@ output: bookdown::html_document2
 <pre class="r"><code>library(MASS) # birthwt dataset
 library(texreg) # for nice looking tables
 library(tidyverse)</code></pre>
-<p>We will use the birthweight data to explore different model specifications. Here, <code>bwt</code> is the outcome variable of interest, birtweight.</p>
+<p>We will use the birthweight data to explore different model specifications. Here, <code>bwt</code> is the outcome variable of interest, birthweight.</p>
 <pre class="r"><code>head(birthwt)</code></pre>
 <pre><code>##    low age lwt race smoke ptl ht ui ftv  bwt
 ## 85   0  19 182    2     0   0  0  1   0 2523
@@ -20,10 +20,12 @@ library(tidyverse)</code></pre>
 ## 88   0  21 108    1     1   0  0  1   2 2594
 ## 89   0  18 107    1     1   0  0  1   0 2600
 ## 91   0  21 124    3     0   0  0  0   0 2622</code></pre>
-<p>The race variable is mother’s race and is coded:
-- 1: White
-- 2: Black
-- 3: Other</p>
+<p>The race variable is mother’s race and is coded:</p>
+<ul>
+<li>1: White</li>
+<li>2: Black</li>
+<li>3: Other</li>
+</ul>
 <p>Let’s make a new variable with more informative labels.</p>
 <pre class="r"><code>birthwt &lt;- birthwt %&gt;%
   mutate(race_fct = recode(race, `1` = &#39;White&#39;, `2` = &#39;Black&#39;, `3` = &#39;Other&#39;))
@@ -625,9 +627,7 @@ train_obs &lt;- sample(x=1:nrow(birthwt),size=.8*nrow(birthwt),replace = F)
 train &lt;- birthwt[train_obs,]
 test &lt;- birthwt[-train_obs,]</code></pre>
 <p>However, in order to demonstrate how overfitting can be a problem I’m going to separate into a very small training set.</p>
-<pre class="r"><code>#train &lt;- birthwt %&gt;% filter(age&gt;25)
-#test &lt;- birthwt %&gt;% filter(age&lt;=25)
-train_obs &lt;- c(1,2,3,29,42,57,140,152,138,165,167,184)
+<pre class="r"><code>train_obs &lt;- c(1,2,3,29,42,57,140,152,138,165,167,184)
 train &lt;- birthwt[train_obs,]
 test &lt;- birthwt[-train_obs,]</code></pre>
 <p>Now, we fit our models on the training data and choose our preferred model.</p>

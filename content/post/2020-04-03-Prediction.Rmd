@@ -18,13 +18,14 @@ library(texreg) # for nice looking tables
 library(tidyverse)
 ```
 
-We will use the birthweight data to explore different model specifications. Here, `bwt` is the outcome variable of interest, birtweight.
+We will use the birthweight data to explore different model specifications. Here, `bwt` is the outcome variable of interest, birthweight.
 
 ```{r}
 head(birthwt)
 ```
 
 The race variable is mother's race and is coded:
+
   - 1: White
   - 2: Black
   - 3: Other
@@ -101,8 +102,6 @@ test <- birthwt[-train_obs,]
 However, in order to demonstrate how overfitting can be a problem I'm going to separate into a very small training set.
 
 ```{r}
-#train <- birthwt %>% filter(age>25)
-#test <- birthwt %>% filter(age<=25)
 train_obs <- c(1,2,3,29,42,57,140,152,138,165,167,184)
 train <- birthwt[train_obs,]
 test <- birthwt[-train_obs,]
