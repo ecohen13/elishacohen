@@ -1,0 +1,1322 @@
+---
+title: "Model fit and out of sample prediction"
+author: "Elisha Cohen"
+date: "4/3/2020"
+output: bookdown::html_document2
+---
+
+
+
+<p>Using birthweight data from the <code>MASS</code> library we will work through evaluating different modeling specifications:</p>
+<pre class="r"><code>library(MASS) # birthwt dataset
+library(texreg) # for nice looking tables
+library(tidyverse)</code></pre>
+<p>We will use the birthweight data to explore different model specifications. Here, <code>bwt</code> is the outcome variable of interest, birtweight.</p>
+<pre class="r"><code>head(birthwt)</code></pre>
+<pre><code>##    low age lwt race smoke ptl ht ui ftv  bwt
+## 85   0  19 182    2     0   0  0  1   0 2523
+## 86   0  33 155    3     0   0  0  0   3 2551
+## 87   0  20 105    1     1   0  0  0   1 2557
+## 88   0  21 108    1     1   0  0  1   2 2594
+## 89   0  18 107    1     1   0  0  1   0 2600
+## 91   0  21 124    3     0   0  0  0   0 2622</code></pre>
+<p>The race variable is mother’s race and is coded:
+- 1: White
+- 2: Black
+- 3: Other</p>
+<p>Let’s make a new variable with more informative labels.</p>
+<pre class="r"><code>birthwt &lt;- birthwt %&gt;%
+  mutate(race_fct = recode(race, `1` = &#39;White&#39;, `2` = &#39;Black&#39;, `3` = &#39;Other&#39;))
+# specify factor variable with White as reference category
+birthwt$race_fct &lt;- factor(birthwt$race_fct, levels = c(&#39;White&#39;, &#39;Black&#39;, &#39;Other&#39;))
+#check variable
+table(birthwt$race, birthwt$race_fct)</code></pre>
+<pre><code>##    
+##     White Black Other
+##   1    96     0     0
+##   2     0    26     0
+##   3     0     0    67</code></pre>
+<p>Let’s explore what some of the predictor variables look like.</p>
+<pre class="r"><code>ggplot(data = birthwt, aes(x = age, y = bwt)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<div class="figure"><span id="fig:unnamed-chunk-4"></span>
+<img src="/post/2020-04-03-Prediction_files/figure-html/unnamed-chunk-4-1.png" alt="Age Plot" width="672" />
+<p class="caption">
+Figure 1: Age Plot
+</p>
+</div>
+<pre class="r"><code>ggplot(data = birthwt, aes(x = age, y = bwt, color = race_fct)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<div class="figure"><span id="fig:unnamed-chunk-5"></span>
+<img src="/post/2020-04-03-Prediction_files/figure-html/unnamed-chunk-5-1.png" alt="Age and Race Plot" width="672" />
+<p class="caption">
+Figure 2: Age and Race Plot
+</p>
+</div>
+<p>The initial Figure 1 seems to suggest there is not much relationship (or maybe slightly positive) between age and birthweight. However, when we look at Figure 2, age by race, there seems to be different relationships across groups suggesting an interation between these predictors.</p>
+<pre class="r"><code>ggplot(data = birthwt, aes(x = smoke, y = bwt)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2020-04-03-Prediction_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = birthwt, aes(x = smoke, y = bwt, color= race_fct)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/post/2020-04-03-Prediction_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<p>Looking at the relationship between smoking and birthweight in general there seems to be a negative relationship. But again, there might be an interactive effect with race.</p>
+<p>Let’s compare different linear model specifications:</p>
+<pre class="r"><code>m1 &lt;- lm(bwt ~ age + smoke, data = birthwt)
+m2 &lt;- lm(bwt ~ age + smoke + race_fct, data = birthwt)
+htmlreg(list(m1,m2),doctype = F)</code></pre>
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="bottom" style="margin-top:0.3em;">
+Statistical models
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 1</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 2</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+2791.22<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+3281.67<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(240.95)
+</td>
+<td style="padding-right: 12px; border: none;">
+(260.66)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age
+</td>
+<td style="padding-right: 12px; border: none;">
+11.29
+</td>
+<td style="padding-right: 12px; border: none;">
+2.13
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(9.88)
+</td>
+<td style="padding-right: 12px; border: none;">
+(9.77)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+-278.36<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-426.09<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(106.99)
+</td>
+<td style="padding-right: 12px; border: none;">
+(109.99)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctBlack
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-444.07<sup style="vertical-align: 0px;">**</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(156.19)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctOther
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-447.86<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(119.02)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="border-top: 1px solid black;">
+0.04
+</td>
+<td style="border-top: 1px solid black;">
+0.12
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Adj. R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.03
+</td>
+<td style="padding-right: 12px; border: none;">
+0.10
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Num. obs.
+</td>
+<td style="padding-right: 12px; border: none;">
+189
+</td>
+<td style="padding-right: 12px; border: none;">
+189
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+RMSE
+</td>
+<td style="border-bottom: 2px solid black;">
+717.19
+</td>
+<td style="border-bottom: 2px solid black;">
+690.02
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="4">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
+</td>
+</tr>
+</table>
+<p>Including race of the mother, which we know from the health disparities literature in the United States is substantively important, is also statistically significant. In addition, we see that that the adjusted R squared has increased and the root mean squared error (RMSE) has decreased.</p>
+<p>Adding in interactions:</p>
+<pre class="r"><code>m3 &lt;- lm(bwt ~ age*race_fct + smoke, data = birthwt)
+m4 &lt;- lm(bwt ~ age*race_fct + smoke*race_fct, data = birthwt)
+htmlreg(list(m1,m2,m3,m4),doctype = F)</code></pre>
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="bottom" style="margin-top:0.3em;">
+Statistical models
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 1</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 2</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 3</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 4</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+2791.22<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+3281.67<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+3032.07<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+3251.05<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(240.95)
+</td>
+<td style="padding-right: 12px; border: none;">
+(260.66)
+</td>
+<td style="padding-right: 12px; border: none;">
+(338.74)
+</td>
+<td style="padding-right: 12px; border: none;">
+(353.34)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age
+</td>
+<td style="padding-right: 12px; border: none;">
+11.29
+</td>
+<td style="padding-right: 12px; border: none;">
+2.13
+</td>
+<td style="padding-right: 12px; border: none;">
+11.60
+</td>
+<td style="padding-right: 12px; border: none;">
+6.83
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(9.88)
+</td>
+<td style="padding-right: 12px; border: none;">
+(9.77)
+</td>
+<td style="padding-right: 12px; border: none;">
+(12.85)
+</td>
+<td style="padding-right: 12px; border: none;">
+(12.98)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+-278.36<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-426.09<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-389.78<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-580.08<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(106.99)
+</td>
+<td style="padding-right: 12px; border: none;">
+(109.99)
+</td>
+<td style="padding-right: 12px; border: none;">
+(113.67)
+</td>
+<td style="padding-right: 12px; border: none;">
+(146.58)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctBlack
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-444.07<sup style="vertical-align: 0px;">**</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+394.58
+</td>
+<td style="padding-right: 12px; border: none;">
+256.56
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(156.19)
+</td>
+<td style="padding-right: 12px; border: none;">
+(699.09)
+</td>
+<td style="padding-right: 12px; border: none;">
+(705.20)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctOther
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-447.86<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-61.30
+</td>
+<td style="padding-right: 12px; border: none;">
+-332.36
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(119.02)
+</td>
+<td style="padding-right: 12px; border: none;">
+(541.85)
+</td>
+<td style="padding-right: 12px; border: none;">
+(554.01)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age:race_fctBlack
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-37.46
+</td>
+<td style="padding-right: 12px; border: none;">
+-39.59
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(30.69)
+</td>
+<td style="padding-right: 12px; border: none;">
+(32.12)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age:race_fctOther
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-15.87
+</td>
+<td style="padding-right: 12px; border: none;">
+-11.43
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(22.74)
+</td>
+<td style="padding-right: 12px; border: none;">
+(22.70)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctBlack:smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+365.94
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(336.12)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctOther:smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+522.09<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(263.26)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="border-top: 1px solid black;">
+0.04
+</td>
+<td style="border-top: 1px solid black;">
+0.12
+</td>
+<td style="border-top: 1px solid black;">
+0.13
+</td>
+<td style="border-top: 1px solid black;">
+0.15
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Adj. R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.03
+</td>
+<td style="padding-right: 12px; border: none;">
+0.10
+</td>
+<td style="padding-right: 12px; border: none;">
+0.10
+</td>
+<td style="padding-right: 12px; border: none;">
+0.11
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Num. obs.
+</td>
+<td style="padding-right: 12px; border: none;">
+189
+</td>
+<td style="padding-right: 12px; border: none;">
+189
+</td>
+<td style="padding-right: 12px; border: none;">
+189
+</td>
+<td style="padding-right: 12px; border: none;">
+189
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+RMSE
+</td>
+<td style="border-bottom: 2px solid black;">
+717.19
+</td>
+<td style="border-bottom: 2px solid black;">
+690.02
+</td>
+<td style="border-bottom: 2px solid black;">
+690.68
+</td>
+<td style="border-bottom: 2px solid black;">
+686.31
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="6">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
+</td>
+</tr>
+</table>
+<p>Based on the adjusted R squared and RMSE it looks like including age and smoke as interactions with race make for the best fitting model.</p>
+<p>While, including additional predictors can improve model fit it can also lead to overfitting. One way to approach this is to separate your data into a training set and a test set. Use the training set to fit the model and then look at how well the model works on the out-of-sample (test) data. A model that is not overfit will continue to perform well.</p>
+<p>Usually, we would want to randomly separate the data into a training and test set.</p>
+<pre class="r"><code>set.seed(12345)
+# randomly draw row numbers 80% for training set, 20% for test set
+train_obs &lt;- sample(x=1:nrow(birthwt),size=.8*nrow(birthwt),replace = F)
+train &lt;- birthwt[train_obs,]
+test &lt;- birthwt[-train_obs,]</code></pre>
+<p>However, in order to demonstrate how overfitting can be a problem I’m going to separate into a very small training set.</p>
+<pre class="r"><code>#train &lt;- birthwt %&gt;% filter(age&gt;25)
+#test &lt;- birthwt %&gt;% filter(age&lt;=25)
+train_obs &lt;- c(1,2,3,29,42,57,140,152,138,165,167,184)
+train &lt;- birthwt[train_obs,]
+test &lt;- birthwt[-train_obs,]</code></pre>
+<p>Now, we fit our models on the training data and choose our preferred model.</p>
+<pre class="r"><code>m_train &lt;- lm(bwt ~ age*race_fct + smoke*race_fct, data = train)
+m_train1 &lt;- lm(bwt ~ age + smoke, data = train)
+m_train2 &lt;- lm(bwt ~ age + smoke + race_fct, data = train)
+htmlreg(list(m_train, m_train1, m_train2),doctype = F)</code></pre>
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="bottom" style="margin-top:0.3em;">
+Statistical models
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 1</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 2</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Model 3</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+17145.00
+</td>
+<td style="padding-right: 12px; border: none;">
+2156.67<sup style="vertical-align: 0px;">*</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+2174.26<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(16560.35)
+</td>
+<td style="padding-right: 12px; border: none;">
+(772.11)
+</td>
+<td style="padding-right: 12px; border: none;">
+(842.86)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age
+</td>
+<td style="padding-right: 12px; border: none;">
+-767.00
+</td>
+<td style="padding-right: 12px; border: none;">
+9.48
+</td>
+<td style="padding-right: 12px; border: none;">
+5.44
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(871.30)
+</td>
+<td style="padding-right: 12px; border: none;">
+(33.09)
+</td>
+<td style="padding-right: 12px; border: none;">
+(37.22)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctBlack
+</td>
+<td style="padding-right: 12px; border: none;">
+-15246.07
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+-23.62
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(16684.66)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(393.45)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctOther
+</td>
+<td style="padding-right: 12px; border: none;">
+-15860.41
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+243.91
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(16652.40)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(397.39)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+752.00
+</td>
+<td style="padding-right: 12px; border: none;">
+192.37
+</td>
+<td style="padding-right: 12px; border: none;">
+182.26
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(1444.88)
+</td>
+<td style="padding-right: 12px; border: none;">
+(301.00)
+</td>
+<td style="padding-right: 12px; border: none;">
+(328.89)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age:race_fctBlack
+</td>
+<td style="padding-right: 12px; border: none;">
+776.91
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(876.18)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age:race_fctOther
+</td>
+<td style="padding-right: 12px; border: none;">
+809.27
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(873.55)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctBlack:smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+-260.96
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(1571.43)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctOther:smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+58.11
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(1679.96)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="border-top: 1px solid black;">
+0.52
+</td>
+<td style="border-top: 1px solid black;">
+0.04
+</td>
+<td style="border-top: 1px solid black;">
+0.12
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Adj. R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.76
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.17
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.39
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Num. obs.
+</td>
+<td style="padding-right: 12px; border: none;">
+12
+</td>
+<td style="padding-right: 12px; border: none;">
+12
+</td>
+<td style="padding-right: 12px; border: none;">
+12
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+RMSE
+</td>
+<td style="border-bottom: 2px solid black;">
+616.10
+</td>
+<td style="border-bottom: 2px solid black;">
+501.27
+</td>
+<td style="border-bottom: 2px solid black;">
+546.38
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="5">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
+</td>
+</tr>
+</table>
+<p>We make a judgment using our normal diagnostic tools like adjusted R squared, RMSE, etc. This example is slightly unrealistic because of the very small sample size but let’s choose the interactive model. This model has an R squared of 0.52 but the adjusted R squared is negative because of the very small sample size. We should be wary that a model fit on only 12 observations is overfitting.</p>
+<p>What is the mean of the squared residuals?</p>
+<pre class="r"><code>obs_y_train &lt;- train$bwt
+pred_y_train &lt;- m_train$fitted.values
+resid_train &lt;- obs_y_train - pred_y_train
+mean(resid_train^2)</code></pre>
+<pre><code>## [1] 94894.57</code></pre>
+<pre class="r"><code># compare this to resid stored in summary
+mean(m_train$residuals^2)</code></pre>
+<pre><code>## [1] 94894.57</code></pre>
+<pre class="r"><code>RMSE_train &lt;- sqrt(mean(m_train$residuals^2))
+RMSE_train</code></pre>
+<pre><code>## [1] 308.0496</code></pre>
+<p>Now, we will use the estimated coefficients from this model to predict birthweight on the test data.</p>
+<pre class="r"><code># predict by hand
+betas_train &lt;- as.matrix(summary(m_train)$coefficients[,1])
+# We need the dimensions of the testing data to match our betas
+test &lt;- test %&gt;%
+  mutate(race_fctBlack = ifelse(race_fct==&#39;Black&#39;,1,0),
+         race_fctOther = ifelse(race_fct==&#39;Other&#39;,1,0),
+         `age:race_fctBlack` = age*race_fctBlack,
+         `age:race_fctOther` = age*race_fctOther,
+         `race_fctBlack:smoke` = race_fctBlack*smoke,
+         `race_fctOther:smoke` = race_fctOther*smoke)
+# remove outcome variable and needs to be a matrix
+X &lt;- test %&gt;%
+  select(age,race_fctBlack, race_fctOther, smoke,
+         `age:race_fctBlack`,`age:race_fctOther`,
+         `race_fctBlack:smoke`,`race_fctOther:smoke`) %&gt;%
+  as.matrix()
+# add column of 1s for intercept
+X &lt;- cbind(1, X)
+colnames(X)[1] &lt;- &quot;(Intercept)&quot; #add column name to intercept</code></pre>
+<p>In order to use matrix multiplication the dimensions must be compatible.</p>
+<pre class="r"><code># check dimensions
+dim(X)</code></pre>
+<pre><code>## [1] 177   9</code></pre>
+<pre class="r"><code>dim(betas_train)</code></pre>
+<pre><code>## [1] 9 1</code></pre>
+<p>Estimate the predicted birthweights using the coefficients from the training model <strong>but</strong> the data from the test dataset.</p>
+<pre class="r"><code>pred_y_test &lt;- X %*% betas_train
+resid_test &lt;- test$bwt - pred_y_test
+mean(resid_test^2)</code></pre>
+<pre><code>## [1] 21549599</code></pre>
+<pre class="r"><code>RMSE_test &lt;- sqrt(mean(resid_test^2))
+RMSE_test</code></pre>
+<pre><code>## [1] 4642.155</code></pre>
+<p>The mean of the squared residuals and therefore RMSE have increased meaning the model does not fit as well on this data.</p>
+<p>We can also use the built-in <code>predict()</code> function to do the same things:</p>
+<pre class="r"><code>newdata &lt;- test %&gt;% select(bwt, age, smoke, race_fct)
+pred_y_test2 &lt;- predict(m_train, newdata = newdata)
+mean((test$bwt - pred_y_test2)^2)</code></pre>
+<pre><code>## [1] 21549599</code></pre>
+<p>This gives us the same results and saves us from having to create a compatable dataset.</p>
+<p>Let’s fit a new model on the test data and compare (normally we would not do this. The test data is held out and only used for validation of the model).</p>
+<pre class="r"><code>m_test &lt;- lm(bwt ~ age*race_fct + smoke*race_fct, data = test)
+m_all &lt;- lm(bwt ~ age*race_fct + smoke*race_fct, data = birthwt)
+htmlreg(list(m_train,m_test,m_all),doctype=F,custom.model.names = c(&quot;Train&quot;, &quot;Test&quot;, &quot;All&quot;))</code></pre>
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="bottom" style="margin-top:0.3em;">
+Statistical models
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Train</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>Test</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>All</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+17145.00
+</td>
+<td style="padding-right: 12px; border: none;">
+3433.18<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+3251.05<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(16560.35)
+</td>
+<td style="padding-right: 12px; border: none;">
+(365.72)
+</td>
+<td style="padding-right: 12px; border: none;">
+(353.34)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age
+</td>
+<td style="padding-right: 12px; border: none;">
+-767.00
+</td>
+<td style="padding-right: 12px; border: none;">
+1.38
+</td>
+<td style="padding-right: 12px; border: none;">
+6.83
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(871.30)
+</td>
+<td style="padding-right: 12px; border: none;">
+(13.28)
+</td>
+<td style="padding-right: 12px; border: none;">
+(12.98)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctBlack
+</td>
+<td style="padding-right: 12px; border: none;">
+-15246.07
+</td>
+<td style="padding-right: 12px; border: none;">
+142.48
+</td>
+<td style="padding-right: 12px; border: none;">
+256.56
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(16684.66)
+</td>
+<td style="padding-right: 12px; border: none;">
+(739.12)
+</td>
+<td style="padding-right: 12px; border: none;">
+(705.20)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctOther
+</td>
+<td style="padding-right: 12px; border: none;">
+-15860.41
+</td>
+<td style="padding-right: 12px; border: none;">
+-494.33
+</td>
+<td style="padding-right: 12px; border: none;">
+-332.36
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(16652.40)
+</td>
+<td style="padding-right: 12px; border: none;">
+(586.32)
+</td>
+<td style="padding-right: 12px; border: none;">
+(554.01)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+752.00
+</td>
+<td style="padding-right: 12px; border: none;">
+-611.83<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-580.08<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(1444.88)
+</td>
+<td style="padding-right: 12px; border: none;">
+(150.93)
+</td>
+<td style="padding-right: 12px; border: none;">
+(146.58)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age:race_fctBlack
+</td>
+<td style="padding-right: 12px; border: none;">
+776.91
+</td>
+<td style="padding-right: 12px; border: none;">
+-32.58
+</td>
+<td style="padding-right: 12px; border: none;">
+-39.59
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(876.18)
+</td>
+<td style="padding-right: 12px; border: none;">
+(33.93)
+</td>
+<td style="padding-right: 12px; border: none;">
+(32.12)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+age:race_fctOther
+</td>
+<td style="padding-right: 12px; border: none;">
+809.27
+</td>
+<td style="padding-right: 12px; border: none;">
+-6.26
+</td>
+<td style="padding-right: 12px; border: none;">
+-11.43
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(873.55)
+</td>
+<td style="padding-right: 12px; border: none;">
+(24.18)
+</td>
+<td style="padding-right: 12px; border: none;">
+(22.70)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctBlack:smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+-260.96
+</td>
+<td style="padding-right: 12px; border: none;">
+282.47
+</td>
+<td style="padding-right: 12px; border: none;">
+365.94
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(1571.43)
+</td>
+<td style="padding-right: 12px; border: none;">
+(372.95)
+</td>
+<td style="padding-right: 12px; border: none;">
+(336.12)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+race_fctOther:smoke
+</td>
+<td style="padding-right: 12px; border: none;">
+58.11
+</td>
+<td style="padding-right: 12px; border: none;">
+529.44
+</td>
+<td style="padding-right: 12px; border: none;">
+522.09<sup style="vertical-align: 0px;">*</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(1679.96)
+</td>
+<td style="padding-right: 12px; border: none;">
+(282.21)
+</td>
+<td style="padding-right: 12px; border: none;">
+(263.26)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="border-top: 1px solid black;">
+0.52
+</td>
+<td style="border-top: 1px solid black;">
+0.16
+</td>
+<td style="border-top: 1px solid black;">
+0.15
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Adj. R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+-0.76
+</td>
+<td style="padding-right: 12px; border: none;">
+0.12
+</td>
+<td style="padding-right: 12px; border: none;">
+0.11
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Num. obs.
+</td>
+<td style="padding-right: 12px; border: none;">
+12
+</td>
+<td style="padding-right: 12px; border: none;">
+177
+</td>
+<td style="padding-right: 12px; border: none;">
+189
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+RMSE
+</td>
+<td style="border-bottom: 2px solid black;">
+616.10
+</td>
+<td style="border-bottom: 2px solid black;">
+687.35
+</td>
+<td style="border-bottom: 2px solid black;">
+686.31
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="5">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
+</td>
+</tr>
+</table>
+<p>The first model uses the training data and only has 12 observations (because we designed it this way for pedogogical reasons). The second model is fit on the test data which has many more observations. The first model is overfit to the specific training dataset. We can see that the second model, while the R squared has decreased, it is much closer to the adjusted R squared suggesting a better fit. The second and third models estimate vary similar coefficients suggesting the model is robust to including all the data. As a reminder, this is not how we normally approach model selection. The aim of re-estimating the model using the test data and all the data is to illustrate how our coefficient estimates can change from a model that is overfit to a model that fits better on average.</p>

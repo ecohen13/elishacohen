@@ -1,0 +1,198 @@
+---
+title: "Model fit and out of sample prediction"
+author: "Elisha Cohen"
+date: "4/3/2020"
+output: bookdown::html_document2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(bookdown)
+```
+
+Using birthweight data from the `MASS` library we will work through evaluating different modeling specifications:
+
+```{r,message=F}
+library(MASS) # birthwt dataset
+library(texreg) # for nice looking tables
+library(tidyverse)
+```
+
+We will use the birthweight data to explore different model specifications. Here, `bwt` is the outcome variable of interest, birtweight.
+
+```{r}
+head(birthwt)
+```
+
+The race variable is mother's race and is coded:
+  - 1: White
+  - 2: Black
+  - 3: Other
+  
+Let's make a new variable with more informative labels.
+```{r}
+birthwt <- birthwt %>%
+  mutate(race_fct = recode(race, `1` = 'White', `2` = 'Black', `3` = 'Other'))
+# specify factor variable with White as reference category
+birthwt$race_fct <- factor(birthwt$race_fct, levels = c('White', 'Black', 'Other'))
+#check variable
+table(birthwt$race, birthwt$race_fct)
+```
+
+Let's explore what some of the predictor variables look like.
+```{r,fig.cap = 'Age Plot'}
+ggplot(data = birthwt, aes(x = age, y = bwt)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()
+```
+
+```{r, fig.cap = 'Age and Race Plot'}
+ggplot(data = birthwt, aes(x = age, y = bwt, color = race_fct)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()
+```
+
+The initial Figure 1 seems to suggest there is not much relationship (or maybe slightly positive) between age and birthweight. However, when we look at Figure 2, age by race, there seems to be different relationships across groups suggesting an interation between these predictors.
+
+```{r}
+ggplot(data = birthwt, aes(x = smoke, y = bwt)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()
+ggplot(data = birthwt, aes(x = smoke, y = bwt, color= race_fct)) +
+  geom_point() +
+  geom_smooth(method=lm,se=F) +
+  theme_bw()
+```
+
+Looking at the relationship between smoking and birthweight in general there seems to be a negative relationship. But again, there might be an interactive effect with race. 
+
+Let's compare different linear model specifications:
+```{r,results='asis'}
+m1 <- lm(bwt ~ age + smoke, data = birthwt)
+m2 <- lm(bwt ~ age + smoke + race_fct, data = birthwt)
+htmlreg(list(m1,m2),doctype = F)
+```
+
+Including race of the mother, which we know from the health disparities literature in the United States is substantively important, is also statistically significant. In addition, we see that that the adjusted R squared has increased and the root mean squared error (RMSE) has decreased.
+
+Adding in interactions:
+```{r,results='asis'}
+m3 <- lm(bwt ~ age*race_fct + smoke, data = birthwt)
+m4 <- lm(bwt ~ age*race_fct + smoke*race_fct, data = birthwt)
+htmlreg(list(m1,m2,m3,m4),doctype = F)
+```
+
+Based on the adjusted R squared and RMSE it looks like including age and smoke as interactions with race make for the best fitting model. 
+
+While, including additional predictors can improve model fit it can also lead to overfitting. One way to approach this is to separate your data into a training set and a test set. Use the training set to fit the model and then look at how well the model works on the out-of-sample (test) data. A model that is not overfit will continue to perform well.
+
+Usually, we would want to randomly separate the data into a training and test set.
+```{r,eval=F}
+set.seed(12345)
+# randomly draw row numbers 80% for training set, 20% for test set
+train_obs <- sample(x=1:nrow(birthwt),size=.8*nrow(birthwt),replace = F)
+train <- birthwt[train_obs,]
+test <- birthwt[-train_obs,]
+```
+
+However, in order to demonstrate how overfitting can be a problem I'm going to separate into a very small training set.
+
+```{r}
+#train <- birthwt %>% filter(age>25)
+#test <- birthwt %>% filter(age<=25)
+train_obs <- c(1,2,3,29,42,57,140,152,138,165,167,184)
+train <- birthwt[train_obs,]
+test <- birthwt[-train_obs,]
+```
+
+Now, we fit our models on the training data and choose our preferred model. 
+
+```{r,results='asis'}
+m_train <- lm(bwt ~ age*race_fct + smoke*race_fct, data = train)
+m_train1 <- lm(bwt ~ age + smoke, data = train)
+m_train2 <- lm(bwt ~ age + smoke + race_fct, data = train)
+htmlreg(list(m_train, m_train1, m_train2),doctype = F)
+```
+
+We make a judgment using our normal diagnostic tools like adjusted R squared, RMSE, etc. This example is slightly unrealistic because of the very small sample size but let's choose the interactive model. This model has an R squared of 0.52 but the adjusted R squared is negative because of the very small sample size. We should be wary that a model fit on only 12 observations is overfitting.
+
+What is the mean of the squared residuals?
+
+```{r}
+obs_y_train <- train$bwt
+pred_y_train <- m_train$fitted.values
+resid_train <- obs_y_train - pred_y_train
+mean(resid_train^2)
+# compare this to resid stored in summary
+mean(m_train$residuals^2)
+RMSE_train <- sqrt(mean(m_train$residuals^2))
+RMSE_train
+```
+
+Now, we will use the estimated coefficients from this model to predict birthweight on the test data.
+
+```{r}
+# predict by hand
+betas_train <- as.matrix(summary(m_train)$coefficients[,1])
+# We need the dimensions of the testing data to match our betas
+test <- test %>%
+  mutate(race_fctBlack = ifelse(race_fct=='Black',1,0),
+         race_fctOther = ifelse(race_fct=='Other',1,0),
+         `age:race_fctBlack` = age*race_fctBlack,
+         `age:race_fctOther` = age*race_fctOther,
+         `race_fctBlack:smoke` = race_fctBlack*smoke,
+         `race_fctOther:smoke` = race_fctOther*smoke)
+# remove outcome variable and needs to be a matrix
+X <- test %>%
+  select(age,race_fctBlack, race_fctOther, smoke,
+         `age:race_fctBlack`,`age:race_fctOther`,
+         `race_fctBlack:smoke`,`race_fctOther:smoke`) %>%
+  as.matrix()
+# add column of 1s for intercept
+X <- cbind(1, X)
+colnames(X)[1] <- "(Intercept)" #add column name to intercept
+```
+
+In order to use matrix multiplication the dimensions must be compatible.
+```{r}
+# check dimensions
+dim(X)
+dim(betas_train)
+```
+
+Estimate the predicted birthweights using the coefficients from the training model **but** the data from the test dataset.
+
+```{r}
+pred_y_test <- X %*% betas_train
+resid_test <- test$bwt - pred_y_test
+mean(resid_test^2)
+RMSE_test <- sqrt(mean(resid_test^2))
+RMSE_test
+```
+
+The mean of the squared residuals and therefore RMSE have increased meaning the model does not fit as well on this data. 
+
+We can also use the built-in `predict()` function to do the same things:
+
+```{r}
+newdata <- test %>% select(bwt, age, smoke, race_fct)
+pred_y_test2 <- predict(m_train, newdata = newdata)
+mean((test$bwt - pred_y_test2)^2)
+```
+This gives us the same results and saves us from having to create a compatable dataset.
+
+Let's fit a new model on the test data and compare (normally we would not do this. The test data is held out and only used for validation of the model).
+
+```{r,results='asis'}
+m_test <- lm(bwt ~ age*race_fct + smoke*race_fct, data = test)
+m_all <- lm(bwt ~ age*race_fct + smoke*race_fct, data = birthwt)
+htmlreg(list(m_train,m_test,m_all),doctype=F,custom.model.names = c("Train", "Test", "All"))
+```
+
+The first model uses the training data and only has 12 observations (because we designed it this way for pedogogical reasons). The second model is fit on the test data which has many more observations. The first model is overfit to the specific training dataset. We can see that the second model, while the R squared has decreased, it is much closer to the adjusted R squared suggesting a better fit. The second and third models estimate vary similar coefficients suggesting the model is robust to including all the data. As a reminder, this is not how we normally approach model selection. The aim of re-estimating the model using the test data and all the data is to illustrate how our coefficient estimates can change from a model that is overfit to a model that fits better on average.
+
+
+
