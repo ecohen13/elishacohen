@@ -1,0 +1,291 @@
+---
+title: "Nonparametric Regression"
+author: "Elisha Cohen"
+date: "4/7/2020"
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{bbold}
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Nonparametric Regression
+
+Given the usual conditional expectation function
+
+\[E[y_i | \mathbf{x_i} = \mathbf{x}] = m(x)\]
+
+we can estimate $m(x)$ as a traditional linear model or nonparametrically. One approach to nonparametric estimation is to use a binned means estimator. This takes the average $y$ for some values of $x_i$ close to $x$ (assuming $x_i$ is continuous). In other words, take the average $y_i$ for all values $x_i$ where $|x_i - x| \leq h$ for some small $h$. Here $h$ is the bandwidth. 
+
+### Binned means estimator
+
+\begin{equation}
+\widehat{m}(x) = \frac{\sum_{i=1}^n \mathbb{1}(|x_i - x| \leq h)y_i}{\sum_{i=1}^n \mathbb{1}(|x_i - x|\leq h)}
+\end{equation}
+
+This gives us a step-function because the indicator function makes the weights discontinuous. Alternatively, we can replace the indicator function with a kernel function:
+
+### Kernel regression estimator
+\begin{equation}
+  \widehat{m}_k(x) = \frac{\sum_{i=1}^n K\left(\frac{x_i - x}{h}\right)y_i}{\sum_{i=1}^n K\left(\frac{x_i - x}{h}\right)}
+\end{equation}
+
+Some commonly used kernels:
+
+Gaussian Kernel:
+\[K(u) = \frac{1}{\sqrt{2 \pi}} exp \left (-\frac{u^2}{2}\right)\]
+
+Epanechnikov Kernel:
+\[ K(u) = \left\{ \begin{array}{ll}
+         \frac{3}{4\sqrt{5}}\left(1 - \frac{u^2}{5}\right) & \mbox{if $|u| < \sqrt{5}$}\\
+        0 & \mbox{otherwise}\end{array} \right. \] 
+
+### Local Linear approximation
+
+Let's start with simulating some data using the `simstudy` packge:
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+## simulate data using simstudy package
+library(simstudy)
+set.seed(234)
+df <- genData(100, defData(varname = "x", formula = "20;60", dist = 'uniform'))
+theta1 = c(0.1, 0.8, 0.6, 0.4, 0.6, 0.9, 0.9)
+knots <- c(0.25, 0.5, 0.75)
+df <- genSpline(dt = df, newvar = "y",
+                predictor = "x",
+                theta = theta1,
+                knots = knots,
+                degree = 3,
+                newrange = "90;160",
+                noise.var = 64)
+```
+
+Here is a scatterplot with dashed vertical lines showing the knots used to generate the data (quantiles).
+
+```{r}
+## scatter plot of the data
+ggplot(data = df, aes(x = x, y = y)) +
+  geom_point() +
+  geom_vline(xintercept = quantile(df$x, knots), linetype = 'dashed') +
+  theme_bw()
+```
+
+
+```{r}
+#using locpoly 
+library(KernSmooth)
+
+m_ll <- data.frame(locpoly(df$x, df$y, degree = 1, bandwidth = 3))
+# degree = 1 for locally linear
+ggplot(data = df, aes(x = x, y = y)) +
+  geom_point() +
+  geom_vline(xintercept = quantile(df$x, knots), linetype = 'dashed') +
+  geom_line(data = m_ll,aes(x = x, y = y),color = "blue") +
+  theme_bw()
+```
+
+
+tricube kernal
+\[ K(u) = \left\{ \begin{array}{ll}
+         (1-|u|^3)^3 & \mbox{for $|u| < 1$}\\
+        0 & \mbox{for $|u|\geq 1$ }\end{array} \right. \] 
+
+
+```{r}
+kernel.function <- function(u){
+  tmp <- rep(NA,length(u))
+  for(i in 1:length(u)){
+    if(abs(u[i])<1){
+    k <- (1 - abs(u[i])^3)^3
+  }else if(abs(u[i])>=1){
+    k <- 0
+  }
+    tmp[i] <- k
+  }
+  return(tmp)
+}
+
+```
+
+
+Decide on evaluation points $x_0$. Our data is (roughly) from 20 to 60 so let's use that to define our evaluation points and we will use increments of 20.
+
+```{r}
+# evaluation points
+x0 <- seq(20,60,20)
+# bandwidth
+h <- 10
+```
+
+We have 3 evaluation points, let's do a loop to calculate the scaled distance from each value of $x$ to $x_0$.
+
+```{r}
+# empty container
+distances <- matrix(NA, nrow = length(df$x), ncol = 3)
+colnames(distances) <- x0
+for(i in 1:length(x0)){
+  # calc distance and put in column i
+  distances[,i] <- df$x - x0[i]
+  # divide by bandwidth (this does scaling)
+  distances <- distances/h
+}
+
+```
+
+Now apply our kernel function to estimate the weights
+
+```{r}
+distances <- data.frame(distances)
+weights <- map_df(distances, kernel.function)
+```
+
+Estimate predicted values at the evaluation points using our weights
+
+```{r}
+# eval point 20
+W_20 <- diag(weights$X20)
+X <- as.matrix(cbind(rep(1,100), df$x)) #create X matrix with intercept
+Y <- as.matrix(df$y)
+B_WLS_20 <- solve(t(X)%*%W_20%*%X)%*%(t(X)%*%W_20%*%Y)
+# eval point 40
+W_40 <- diag(weights$X40)
+B_WLS_40 <- solve(t(X)%*%W_40%*%X)%*%(t(X)%*%W_40%*%Y)
+# eval point 60
+W_60 <- diag(weights$X60)
+B_WLS_60 <- solve(t(X)%*%W_60%*%X)%*%(t(X)%*%W_60%*%Y)
+
+# predicted values
+yhat <- data.frame(y20 = X%*%B_WLS_20,
+                   y40 = X%*%B_WLS_40,
+                   y60 = X%*%B_WLS_60)
+yhat <- pivot_longer(yhat, names_to = "group", names_prefix = "y",
+                     values_to="yhat",cols = c(1:3))
+
+df_big <- bind_cols(bind_rows(df,df,df),yhat)
+ggplot(data = df_big %>% filter(group==20), aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat),color="red") +
+  theme_bw()
+ggplot(data = df_big %>% filter(group==40), aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat), color="green") +
+  theme_bw()
+ggplot(data = df_big %>% filter(group==60), aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat), color="blue") +
+  theme_bw()
+ggplot(data = df_big, aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat, color=group)) +
+  theme_bw()
+```
+
+Switching gears -- let's do a quick example on how to demean variables using dplyr. We will use the built-in `mtcars` dataset.
+
+First, let's demean only one column, the `mpg` column and make a new variable using `mutate()`:
+
+```{r}
+df <- mtcars %>%
+  mutate(mpg_demean = mpg - mean(mpg))
+```
+You have to assign this to an object, in this case I've stored it as an entirely new data.frame `df`. I can now use this new variable:
+```{r}
+head(df$mpg_demean)
+```
+
+Here, the demeaned variable is calculated but not stored because I have not assigned this operation to anything. If I try to call the variable `mpg_demean` later I will get an error because it does not exist.
+```{r,error=F}
+mtcars %>%
+  mutate(mpg_demean2 = mpg - mean(mpg)) %>%
+  head()
+head(df$mpg_demean2)
+```
+
+If I want to de-mean multiple variables at once use `mutate_each`. Here I am selecting two columns, `vs` and `am`, then using `mutate_all` to demean them both then I'm joining them back to the original data.
+
+```{r}
+df <- df %>%
+  select(vs, am) %>%
+  mutate_all(list(~. - mean(.))) %>%
+  bind_cols(df,.)
+head(df)
+```
+
+Using base R you could do something like this:
+
+```{r}
+df$wt_demean <- df$wt - mean(df$wt)
+head(df)
+```
+
+If I want to demean by groups. Here I will use the cylinder variable to group with.
+```{r}
+df <- df %>%
+  group_by(cyl) %>%
+  mutate(mpg_mean_cyl = mpg - mean(mpg))
+head(df[,c("mpg","cyl","mpg_mean_cyl")])
+```
+
+Here is an example of some code that runs but may not be doing what we want. What are some differences in this code?
+
+```{r}
+df %>%
+  group_by(cyl) %>%
+  mutate(new_mpg = mean(mpg, na.rm=TRUE)) %>%
+  select(mpg,new_mpg)
+```
+
+-----------------------------------
+
+## F-test
+
+We use the F-test to look at multiple hypotheses at once.
+
+```{r}
+fit <- lm(mpg ~ cyl + vs + am + gear + carb, data = mtcars)
+summary(fit)
+```
+
+We could do an F-test on the following hypothesis:
+
+\[H_0:\beta_{cyl} = \beta_{vs} = 0\]
+
+This is different than testing the individual hypotheses:
+\[H_0^{(1)}:\beta_{cyl}=0\]
+\[H_0^{(2)}:\beta_{vs}=0\]
+
+The F-test will compare the two models: 1) model with `cyl` and `vs` and 2) model without `cyl` and `vs`.
+
+\[F_0 = \frac{(\text{SSR}_{resricted} - \text{SSR}_{unrestricted})/q}{\text{SSR}_{unrestricted/(n-k-1)}\]
+
+Where $\text{SSR}_{unrestricted}$ is the residual sum of squares for the full model. $\text{SSR}_{restricted}$ is the residual sum of squares for the null model (restricted). $q$ is how many coefficients are omitted.
+
+```{r}
+full <- lm(mpg ~ cyl + vs + am + gear + carb, data = mtcars)
+restrict <- lm(mpg ~ am + gear + carb, data = mtcars)
+n <- nrow(mtcars)
+k <- 5
+q <- 2
+SSR_unres <- sum((summary(full)$residuals)^2)
+SSR_res <- sum((summary(restrict)$residuals)^2)
+SSR_unres
+SSR_res
+F <- ((SSR_res - SSR_unres)/q)/(SSR_unres/(n-k-1))
+F
+```
+
+Using `linearHypothesis()` function from the `car` package:
+
+```{r,warning=F,message=F}
+library(car)
+
+linearHypothesis(full, c("cyl = 0", "vs = 0"))
+```
+
+Given the p-value we can reject the null hypothesis. This suggests that while individually, the coefficients on `cyl` and `vs` were not statistically significant at the 95% level, including them both improves model fit because we reject the null that they are jointly equal to 0.
+

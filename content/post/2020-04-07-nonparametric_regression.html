@@ -1,0 +1,317 @@
+---
+title: "Nonparametric Regression"
+author: "Elisha Cohen"
+date: "4/7/2020"
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{bbold}
+output: html_document
+---
+
+
+
+
+
+<div id="nonparametric-regression" class="section level1">
+<h1>Nonparametric Regression</h1>
+<p>Given the usual conditional expectation function</p>
+<p><span class="math display">\[E[y_i | \mathbf{x_i} = \mathbf{x}] = m(x)\]</span></p>
+<p>we can estimate <span class="math inline">\(m(x)\)</span> as a traditional linear model or nonparametrically. One approach to nonparametric estimation is to use a binned means estimator. This takes the average <span class="math inline">\(y\)</span> for some values of <span class="math inline">\(x_i\)</span> close to <span class="math inline">\(x\)</span> (assuming <span class="math inline">\(x_i\)</span> is continuous). In other words, take the average <span class="math inline">\(y_i\)</span> for all values <span class="math inline">\(x_i\)</span> where <span class="math inline">\(|x_i - x| \leq h\)</span> for some small <span class="math inline">\(h\)</span>. Here <span class="math inline">\(h\)</span> is the bandwidth.</p>
+<div id="binned-means-estimator" class="section level3">
+<h3>Binned means estimator</h3>
+<p><span class="math display">\[\begin{equation}
+\widehat{m}(x) = \frac{\sum_{i=1}^n \mathbb{1}(|x_i - x| \leq h)y_i}{\sum_{i=1}^n \mathbb{1}(|x_i - x|\leq h)}
+\end{equation}\]</span></p>
+<p>This gives us a step-function because the indicator function makes the weights discontinuous. Alternatively, we can replace the indicator function with a kernel function:</p>
+</div>
+<div id="kernel-regression-estimator" class="section level3">
+<h3>Kernel regression estimator</h3>
+<p><span class="math display">\[\begin{equation}
+  \widehat{m}_k(x) = \frac{\sum_{i=1}^n K\left(\frac{x_i - x}{h}\right)y_i}{\sum_{i=1}^n K\left(\frac{x_i - x}{h}\right)}
+\end{equation}\]</span></p>
+<p>Some commonly used kernels:</p>
+<p>Gaussian Kernel:
+<span class="math display">\[K(u) = \frac{1}{\sqrt{2 \pi}} exp \left (-\frac{u^2}{2}\right)\]</span></p>
+<p>Epanechnikov Kernel:
+<span class="math display">\[ K(u) = \left\{ \begin{array}{ll}
+         \frac{3}{4\sqrt{5}}\left(1 - \frac{u^2}{5}\right) &amp; \mbox{if $|u| &lt; \sqrt{5}$}\\
+        0 &amp; \mbox{otherwise}\end{array} \right. \]</span></p>
+</div>
+<div id="local-linear-approximation" class="section level3">
+<h3>Local Linear approximation</h3>
+<p>Let’s start with simulating some data using the <code>simstudy</code> packge:</p>
+<pre class="r"><code>library(tidyverse)
+## simulate data using simstudy package
+library(simstudy)
+set.seed(234)
+df &lt;- genData(100, defData(varname = &quot;x&quot;, formula = &quot;20;60&quot;, dist = &#39;uniform&#39;))
+theta1 = c(0.1, 0.8, 0.6, 0.4, 0.6, 0.9, 0.9)
+knots &lt;- c(0.25, 0.5, 0.75)
+df &lt;- genSpline(dt = df, newvar = &quot;y&quot;,
+                predictor = &quot;x&quot;,
+                theta = theta1,
+                knots = knots,
+                degree = 3,
+                newrange = &quot;90;160&quot;,
+                noise.var = 64)</code></pre>
+<p>Here is a scatterplot with dashed vertical lines showing the knots used to generate the data (quantiles).</p>
+<pre class="r"><code>## scatter plot of the data
+ggplot(data = df, aes(x = x, y = y)) +
+  geom_point() +
+  geom_vline(xintercept = quantile(df$x, knots), linetype = &#39;dashed&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-07-nonparametric_regression_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>#using locpoly 
+library(KernSmooth)</code></pre>
+<pre><code>## KernSmooth 2.23 loaded
+## Copyright M. P. Wand 1997-2009</code></pre>
+<pre class="r"><code>m_ll &lt;- data.frame(locpoly(df$x, df$y, degree = 1, bandwidth = 3))
+# degree = 1 for locally linear
+ggplot(data = df, aes(x = x, y = y)) +
+  geom_point() +
+  geom_vline(xintercept = quantile(df$x, knots), linetype = &#39;dashed&#39;) +
+  geom_line(data = m_ll,aes(x = x, y = y),color = &quot;blue&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-07-nonparametric_regression_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>tricube kernal
+<span class="math display">\[ K(u) = \left\{ \begin{array}{ll}
+         (1-|u|^3)^3 &amp; \mbox{for $|u| &lt; 1$}\\
+        0 &amp; \mbox{for $|u|\geq 1$ }\end{array} \right. \]</span></p>
+<pre class="r"><code>kernel.function &lt;- function(u){
+  tmp &lt;- rep(NA,length(u))
+  for(i in 1:length(u)){
+    if(abs(u[i])&lt;1){
+    k &lt;- (1 - abs(u[i])^3)^3
+  }else if(abs(u[i])&gt;=1){
+    k &lt;- 0
+  }
+    tmp[i] &lt;- k
+  }
+  return(tmp)
+}</code></pre>
+<p>Decide on evaluation points <span class="math inline">\(x_0\)</span>. Our data is (roughly) from 20 to 60 so let’s use that to define our evaluation points and we will use increments of 20.</p>
+<pre class="r"><code># evaluation points
+x0 &lt;- seq(20,60,20)
+# bandwidth
+h &lt;- 10</code></pre>
+<p>We have 3 evaluation points, let’s do a loop to calculate the scaled distance from each value of <span class="math inline">\(x\)</span> to <span class="math inline">\(x_0\)</span>.</p>
+<pre class="r"><code># empty container
+distances &lt;- matrix(NA, nrow = length(df$x), ncol = 3)
+colnames(distances) &lt;- x0
+for(i in 1:length(x0)){
+  # calc distance and put in column i
+  distances[,i] &lt;- df$x - x0[i]
+  # divide by bandwidth (this does scaling)
+  distances &lt;- distances/h
+}</code></pre>
+<p>Now apply our kernel function to estimate the weights</p>
+<pre class="r"><code>distances &lt;- data.frame(distances)
+weights &lt;- map_df(distances, kernel.function)</code></pre>
+<p>Estimate predicted values at the evaluation points using our weights</p>
+<pre class="r"><code># eval point 20
+W_20 &lt;- diag(weights$X20)
+X &lt;- as.matrix(cbind(rep(1,100), df$x)) #create X matrix with intercept
+Y &lt;- as.matrix(df$y)
+B_WLS_20 &lt;- solve(t(X)%*%W_20%*%X)%*%(t(X)%*%W_20%*%Y)
+# eval point 40
+W_40 &lt;- diag(weights$X40)
+B_WLS_40 &lt;- solve(t(X)%*%W_40%*%X)%*%(t(X)%*%W_40%*%Y)
+# eval point 60
+W_60 &lt;- diag(weights$X60)
+B_WLS_60 &lt;- solve(t(X)%*%W_60%*%X)%*%(t(X)%*%W_60%*%Y)
+
+# predicted values
+yhat &lt;- data.frame(y20 = X%*%B_WLS_20,
+                   y40 = X%*%B_WLS_40,
+                   y60 = X%*%B_WLS_60)
+yhat &lt;- pivot_longer(yhat, names_to = &quot;group&quot;, names_prefix = &quot;y&quot;,
+                     values_to=&quot;yhat&quot;,cols = c(1:3))
+
+df_big &lt;- bind_cols(bind_rows(df,df,df),yhat)
+ggplot(data = df_big %&gt;% filter(group==20), aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat),color=&quot;red&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-07-nonparametric_regression_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = df_big %&gt;% filter(group==40), aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat), color=&quot;green&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-07-nonparametric_regression_files/figure-html/unnamed-chunk-8-2.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = df_big %&gt;% filter(group==60), aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat), color=&quot;blue&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-07-nonparametric_regression_files/figure-html/unnamed-chunk-8-3.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = df_big, aes(x = x, y = y)) +
+  geom_point() +
+  geom_point(aes(x = x, y = yhat, color=group)) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-07-nonparametric_regression_files/figure-html/unnamed-chunk-8-4.png" width="672" /></p>
+<p>Switching gears – let’s do a quick example on how to demean variables using dplyr. We will use the built-in <code>mtcars</code> dataset.</p>
+<p>First, let’s demean only one column, the <code>mpg</code> column and make a new variable using <code>mutate()</code>:</p>
+<pre class="r"><code>df &lt;- mtcars %&gt;%
+  mutate(mpg_demean = mpg - mean(mpg))</code></pre>
+<p>You have to assign this to an object, in this case I’ve stored it as an entirely new data.frame <code>df</code>. I can now use this new variable:</p>
+<pre class="r"><code>head(df$mpg_demean)</code></pre>
+<pre><code>## [1]  0.909375  0.909375  2.709375  1.309375 -1.390625 -1.990625</code></pre>
+<p>Here, the demeaned variable is calculated but not stored because I have not assigned this operation to anything. If I try to call the variable <code>mpg_demean</code> later I will get an error because it does not exist.</p>
+<pre class="r"><code>mtcars %&gt;%
+  mutate(mpg_demean2 = mpg - mean(mpg)) %&gt;%
+  head()</code></pre>
+<pre><code>##    mpg cyl disp  hp drat    wt  qsec vs am gear carb mpg_demean2
+## 1 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4    0.909375
+## 2 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4    0.909375
+## 3 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1    2.709375
+## 4 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1    1.309375
+## 5 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2   -1.390625
+## 6 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1   -1.990625</code></pre>
+<pre class="r"><code>head(df$mpg_demean2)</code></pre>
+<pre><code>## NULL</code></pre>
+<p>If I want to de-mean multiple variables at once use <code>mutate_each</code>. Here I am selecting two columns, <code>vs</code> and <code>am</code>, then using <code>mutate_all</code> to demean them both then I’m joining them back to the original data.</p>
+<pre class="r"><code>df &lt;- df %&gt;%
+  select(vs, am) %&gt;%
+  mutate_all(list(~. - mean(.))) %&gt;%
+  bind_cols(df,.)
+head(df)</code></pre>
+<pre><code>##    mpg cyl disp  hp drat    wt  qsec vs am gear carb mpg_demean     vs1
+## 1 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   0.909375 -0.4375
+## 2 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   0.909375 -0.4375
+## 3 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1   2.709375  0.5625
+## 4 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   1.309375  0.5625
+## 5 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2  -1.390625 -0.4375
+## 6 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1  -1.990625  0.5625
+##        am1
+## 1  0.59375
+## 2  0.59375
+## 3  0.59375
+## 4 -0.40625
+## 5 -0.40625
+## 6 -0.40625</code></pre>
+<p>Using base R you could do something like this:</p>
+<pre class="r"><code>df$wt_demean &lt;- df$wt - mean(df$wt)
+head(df)</code></pre>
+<pre><code>##    mpg cyl disp  hp drat    wt  qsec vs am gear carb mpg_demean     vs1
+## 1 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4   0.909375 -0.4375
+## 2 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4   0.909375 -0.4375
+## 3 22.8   4  108  93 3.85 2.320 18.61  1  1    4    1   2.709375  0.5625
+## 4 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1   1.309375  0.5625
+## 5 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2  -1.390625 -0.4375
+## 6 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1  -1.990625  0.5625
+##        am1 wt_demean
+## 1  0.59375  -0.59725
+## 2  0.59375  -0.34225
+## 3  0.59375  -0.89725
+## 4 -0.40625  -0.00225
+## 5 -0.40625   0.22275
+## 6 -0.40625   0.24275</code></pre>
+<p>If I want to demean by groups. Here I will use the cylinder variable to group with.</p>
+<pre class="r"><code>df &lt;- df %&gt;%
+  group_by(cyl) %&gt;%
+  mutate(mpg_mean_cyl = mpg - mean(mpg))
+head(df[,c(&quot;mpg&quot;,&quot;cyl&quot;,&quot;mpg_mean_cyl&quot;)])</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   cyl [3]
+##     mpg   cyl mpg_mean_cyl
+##   &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;
+## 1  21       6         1.26
+## 2  21       6         1.26
+## 3  22.8     4        -3.86
+## 4  21.4     6         1.66
+## 5  18.7     8         3.6 
+## 6  18.1     6        -1.64</code></pre>
+<p>Here is an example of some code that runs but may not be doing what we want. What are some differences in this code?</p>
+<pre class="r"><code>df %&gt;%
+  group_by(cyl) %&gt;%
+  mutate(new_mpg = mean(mpg, na.rm=TRUE)) %&gt;%
+  select(mpg,new_mpg)</code></pre>
+<pre><code>## Adding missing grouping variables: `cyl`</code></pre>
+<pre><code>## # A tibble: 32 x 3
+## # Groups:   cyl [3]
+##      cyl   mpg new_mpg
+##    &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+##  1     6  21      19.7
+##  2     6  21      19.7
+##  3     4  22.8    26.7
+##  4     6  21.4    19.7
+##  5     8  18.7    15.1
+##  6     6  18.1    19.7
+##  7     8  14.3    15.1
+##  8     4  24.4    26.7
+##  9     4  22.8    26.7
+## 10     6  19.2    19.7
+## # … with 22 more rows</code></pre>
+<hr />
+</div>
+<div id="f-test" class="section level2">
+<h2>F-test</h2>
+<p>We use the F-test to look at multiple hypotheses at once.</p>
+<pre class="r"><code>fit &lt;- lm(mpg ~ cyl + vs + am + gear + carb, data = mtcars)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ cyl + vs + am + gear + carb, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -5.5403 -1.1582  0.2528  1.2787  5.5597 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)  25.1591     7.7570   3.243  0.00323 **
+## cyl          -1.2239     0.7510  -1.630  0.11521   
+## vs            0.8784     1.9957   0.440  0.66347   
+## am            3.5989     1.8694   1.925  0.06522 . 
+## gear          1.2516     1.4730   0.850  0.40323   
+## carb         -1.4071     0.5368  -2.621  0.01444 * 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 2.808 on 26 degrees of freedom
+## Multiple R-squared:  0.8179, Adjusted R-squared:  0.7829 
+## F-statistic: 23.36 on 5 and 26 DF,  p-value: 7.418e-09</code></pre>
+<p>We could do an F-test on the following hypothesis:</p>
+<p><span class="math display">\[H_0:\beta_{cyl} = \beta_{vs} = 0\]</span></p>
+<p>This is different than testing the individual hypotheses:
+<span class="math display">\[H_0^{(1)}:\beta_{cyl}=0\]</span>
+<span class="math display">\[H_0^{(2)}:\beta_{vs}=0\]</span></p>
+<p>The F-test will compare the two models: 1) model with <code>cyl</code> and <code>vs</code> and 2) model without <code>cyl</code> and <code>vs</code>.</p>
+<p><span class="math display">\[F_0 = \frac{(\text{SSR}_{resricted} - \text{SSR}_{unrestricted})/q}{\text{SSR}_{unrestricted/(n-k-1)}\]</span></p>
+<p>Where <span class="math inline">\(\text{SSR}_{unrestricted}\)</span> is the residual sum of squares for the full model. <span class="math inline">\(\text{SSR}_{restricted}\)</span> is the residual sum of squares for the null model (restricted). <span class="math inline">\(q\)</span> is how many coefficients are omitted.</p>
+<pre class="r"><code>full &lt;- lm(mpg ~ cyl + vs + am + gear + carb, data = mtcars)
+restrict &lt;- lm(mpg ~ am + gear + carb, data = mtcars)
+n &lt;- nrow(mtcars)
+k &lt;- 5
+q &lt;- 2
+SSR_unres &lt;- sum((summary(full)$residuals)^2)
+SSR_res &lt;- sum((summary(restrict)$residuals)^2)
+SSR_unres</code></pre>
+<pre><code>## [1] 205.0521</code></pre>
+<pre class="r"><code>SSR_res</code></pre>
+<pre><code>## [1] 265.9296</code></pre>
+<pre class="r"><code>F &lt;- ((SSR_res - SSR_unres)/q)/(SSR_unres/(n-k-1))
+F</code></pre>
+<pre><code>## [1] 3.859546</code></pre>
+<p>Using <code>linearHypothesis()</code> function from the <code>car</code> package:</p>
+<pre class="r"><code>library(car)</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     recode</code></pre>
+<pre class="r"><code>linearHypothesis(full, c(&quot;cyl = 0&quot;, &quot;vs = 0&quot;))</code></pre>
+<pre><code>## Linear hypothesis test
+## 
+## Hypothesis:
+## cyl = 0
+## vs = 0
+## 
+## Model 1: restricted model
+## Model 2: mpg ~ cyl + vs + am + gear + carb
+## 
+##   Res.Df    RSS Df Sum of Sq      F  Pr(&gt;F)  
+## 1     28 265.93                              
+## 2     26 205.05  2    60.878 3.8595 0.03406 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Given the p-value we can reject the null hypothesis. This suggests that while individually, the coefficients on <code>cyl</code> and <code>vs</code> were not statistically significant at the 95% level, including them both improves model fit because we reject the null that they are jointly equal to 0.</p>
+</div>
+</div>
