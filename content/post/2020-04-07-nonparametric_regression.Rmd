@@ -167,6 +167,7 @@ yhat <- pivot_longer(yhat, names_to = "group", names_prefix = "y",
                      values_to="yhat",cols = c(1:3))
 
 df_big <- bind_cols(bind_rows(df,df,df),yhat)
+#first eval point
 ggplot(data = df_big %>% filter(group==20), aes(x = x, y = y)) +
   geom_point() +
   geom_point(aes(x = x, y = yhat),color="red") +
@@ -261,7 +262,8 @@ This is different than testing the individual hypotheses:
 
 The F-test will compare the two models: 1) model with `cyl` and `vs` and 2) model without `cyl` and `vs`.
 
-\[F_0 = \frac{(\text{SSR}_{resricted} - \text{SSR}_{unrestricted})/q}{\text{SSR}_{unrestricted/(n-k-1)}\]
+\[F_0 = (\frac{SSR_{restricted} - SSR_{unrestricted})/q}{SSR_{unrestricted}/(n-k-1)}\]
+
 
 Where $\text{SSR}_{unrestricted}$ is the residual sum of squares for the full model. $\text{SSR}_{restricted}$ is the residual sum of squares for the null model (restricted). $q$ is how many coefficients are omitted.
 
@@ -277,6 +279,7 @@ SSR_unres
 SSR_res
 F <- ((SSR_res - SSR_unres)/q)/(SSR_unres/(n-k-1))
 F
+1 - pf(F,df1 = 2, df2 = n-k-1)
 ```
 
 Using `linearHypothesis()` function from the `car` package:
