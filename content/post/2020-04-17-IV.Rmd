@@ -1,0 +1,133 @@
+---
+title: "Instrumental Variables"
+author: "Elisha Cohen"
+date: "4/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+path <- file.path("/Users/elisha/Dropbox/current-research/R-Course/POLS509/psets")
+```
+
+We'll follow along with the example used in Chapter 3 of Mostly Harmless. You can download the 1980 census from https://economics.mit.edu/faculty/angrist/data1/data/angkru95. Load the data along with `tidyverse()`.
+
+```{r,message=F,warning=F}
+library(tidyverse)
+library(R.utils) #for file path (you may not need this)
+library(AER)
+library(texreg) #for nice tables
+library(sandwich)
+library(estimatr)
+```
+
+```{r,message=F,warning=F,cache=T}
+census <- read_delim(filePath(path,"asciiqob.txt"),
+                   delim = " ",
+                   col_names = c("lwklywge","educ","yob","qob","pob"),
+                   n_max = 329509)
+# remove extra spaces using stringr package
+# and convert to numeric from character
+census <- census %>%
+  mutate(lwklywge = as.numeric(str_trim(lwklywge, side = "left")),
+         educ = as.numeric(str_trim(educ, side = "left")),
+         yob = as.numeric(str_trim(yob, side = "left")),
+         qob = as.numeric(str_trim(qob, side = "left")),
+         pob = as.numeric(str_trim(pob, side = "left")))
+
+# create variable that is year and quarter of birth
+census$yqob <- as.numeric(paste0(census$yob,".",census$qob))
+# average weekly wage
+avg <- census %>%
+  group_by(yqob) %>%
+  summarize(avg_wkwg = mean(lwklywge),
+            avg_educ = mean(educ))
+```
+
+
+Average education by quarter of birth
+
+```{r}
+ggplot(data = avg, aes(x = yqob, y = avg_educ)) +
+  geom_point() +
+  geom_line() +
+  ggtitle("Average Education by Quater of Birth (First Stage)") +
+  xlab("Year of Birth") +
+  ylab("Years of Education") +
+  theme_bw()
+
+```
+
+
+Average weekly wage by quarter of birth
+
+```{r}
+ggplot(data = avg, aes(x = yqob, y = avg_wkwg)) +
+  geom_point() +
+  geom_line() +
+  ggtitle("Average Weekly Wage by Quartter of Birth (Reduced Form)") +
+  xlab("Year of Birth") +
+  ylab("Log Weekly Earnings") +
+  theme_bw()
+
+```
+
+### OLS estimation
+
+```{r}
+ols <- lm(lwklywge ~ educ, data = census)
+ols_robust <- lm_robust(lwklywge ~ educ, data = census, se_type = "HC1",ci=FALSE)
+coeftest(ols, vcov=vcovHC, method="HC1")
+sqrt(vcovHC(ols, type = "HC1")) #to compare SEs
+```
+
+```{r}
+summary(ols)
+summary(ols_robust)
+```
+
+### 2SLS estimation
+
+```{r}
+## dummy for QOB == 1
+census$q1 <- ifelse(census$qob==1,1,0)
+iv <- ivreg(lwklywge ~ educ | q1, data = census)
+```
+
+```{r,results='asis'}
+htmlreg(list(ols,iv),doctype = F, digits=3,custom.model.names = c("OLS","IV"))
+```
+
+### Looking at the Inclusion Restriction
+
+Is our instrument highly correlated with the endogenous regressor? We manually run the first stage and make sure to correct our standard errors for possible heteroscedasticity.
+
+```{r}
+iv_stage1 <- lm(educ ~ q1, data = census)
+coeftest(iv_stage1, vcov = vcovHC, type = "HC1")
+# we could compare to results using the lfe package
+#test <- felm(lwklywge ~ 1 | 0 |(educ ~ q1)| 0,data=census)
+#summary(test$stage1)$coefficients
+```
+
+Continue to estimate 2SLS using the predicted values from the first stage.
+
+```{r}
+census$educ_pred <- iv_stage1$fitted.values
+tsls <- lm(lwklywge ~ educ_pred, data = census)
+coeftest(tsls,vcov=sandwich)
+coeftest(iv, vcov=sandwich)
+```
+Compare results between using the `AER` package and doing 2SLS by hand. We should see that the coefficients are the same but the standard errors are different.
+
+```{r,results='asis'}
+iv_se_robust <- coeftest(iv, vcov=sandwich)[,"Std. Error"]
+tsls_se_robust <- coeftest(tsls, vcov=sandwich)[,"Std. Error"]
+htmlreg(list(iv,tsls),
+        custom.model.names = c("ivreg","by hand"),
+        doctype = F,
+        override.se = list(iv_se_robust,tsls_se_robust),
+        digits = 3)
+```
+
+

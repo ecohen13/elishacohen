@@ -1,0 +1,394 @@
+---
+title: "Instrumental Variables"
+author: "Elisha Cohen"
+date: "4/17/2020"
+output: html_document
+---
+
+
+
+<p>We’ll follow along with the example used in Chapter 3 of Mostly Harmless. You can download the 1980 census from <a href="https://economics.mit.edu/faculty/angrist/data1/data/angkru95" class="uri">https://economics.mit.edu/faculty/angrist/data1/data/angkru95</a>. Load the data along with <code>tidyverse()</code>.</p>
+<pre class="r"><code>library(tidyverse)
+library(R.utils) #for file path (you may not need this)
+library(AER)
+library(texreg) #for nice tables
+library(sandwich)
+library(estimatr)</code></pre>
+<pre class="r"><code>census &lt;- read_delim(filePath(path,&quot;asciiqob.txt&quot;),
+                   delim = &quot; &quot;,
+                   col_names = c(&quot;lwklywge&quot;,&quot;educ&quot;,&quot;yob&quot;,&quot;qob&quot;,&quot;pob&quot;),
+                   n_max = 329509)
+# remove extra spaces using stringr package
+# and convert to numeric from character
+census &lt;- census %&gt;%
+  mutate(lwklywge = as.numeric(str_trim(lwklywge, side = &quot;left&quot;)),
+         educ = as.numeric(str_trim(educ, side = &quot;left&quot;)),
+         yob = as.numeric(str_trim(yob, side = &quot;left&quot;)),
+         qob = as.numeric(str_trim(qob, side = &quot;left&quot;)),
+         pob = as.numeric(str_trim(pob, side = &quot;left&quot;)))
+
+# create variable that is year and quarter of birth
+census$yqob &lt;- as.numeric(paste0(census$yob,&quot;.&quot;,census$qob))
+# average weekly wage
+avg &lt;- census %&gt;%
+  group_by(yqob) %&gt;%
+  summarize(avg_wkwg = mean(lwklywge),
+            avg_educ = mean(educ))</code></pre>
+<p>Average education by quarter of birth</p>
+<pre class="r"><code>ggplot(data = avg, aes(x = yqob, y = avg_educ)) +
+  geom_point() +
+  geom_line() +
+  ggtitle(&quot;Average Education by Quater of Birth (First Stage)&quot;) +
+  xlab(&quot;Year of Birth&quot;) +
+  ylab(&quot;Years of Education&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-17-IV_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Average weekly wage by quarter of birth</p>
+<pre class="r"><code>ggplot(data = avg, aes(x = yqob, y = avg_wkwg)) +
+  geom_point() +
+  geom_line() +
+  ggtitle(&quot;Average Weekly Wage by Quartter of Birth (Reduced Form)&quot;) +
+  xlab(&quot;Year of Birth&quot;) +
+  ylab(&quot;Log Weekly Earnings&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2020-04-17-IV_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<div id="ols-estimation" class="section level3">
+<h3>OLS estimation</h3>
+<pre class="r"><code>ols &lt;- lm(lwklywge ~ educ, data = census)
+ols_robust &lt;- lm_robust(lwklywge ~ educ, data = census, se_type = &quot;HC1&quot;,ci=FALSE)
+coeftest(ols, vcov=vcovHC, method=&quot;HC1&quot;)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##               Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 4.99518232 0.00507394  984.48 &lt; 2.2e-16 ***
+## educ        0.07085104 0.00038103  185.95 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>sqrt(vcovHC(ols, type = &quot;HC1&quot;)) #to compare SEs</code></pre>
+<pre><code>## Warning in sqrt(vcovHC(ols, type = &quot;HC1&quot;)): NaNs produced</code></pre>
+<pre><code>##             (Intercept)         educ
+## (Intercept) 0.005073871          NaN
+## educ                NaN 0.0003810234</code></pre>
+<pre class="r"><code>summary(ols)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = lwklywge ~ educ, data = census)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -8.7540 -0.2367  0.0726  0.3318  4.6357 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 4.9951823  0.0044644  1118.9   &lt;2e-16 ***
+## educ        0.0708510  0.0003386   209.2   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.6378 on 329507 degrees of freedom
+## Multiple R-squared:  0.1173, Adjusted R-squared:  0.1173 
+## F-statistic: 4.378e+04 on 1 and 329507 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>summary(ols_robust)</code></pre>
+<pre><code>## 
+## Call:
+## lm_robust(formula = lwklywge ~ educ, data = census, se_type = &quot;HC1&quot;, 
+##     ci = FALSE)
+## 
+## Standard error type:  HC1 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|) CI Lower CI Upper DF
+## (Intercept)  4.99518   0.005074      NA       NA       NA       NA NA
+## educ         0.07085   0.000381      NA       NA       NA       NA NA
+## 
+## Multiple R-squared:  0.1173 ,    Adjusted R-squared:  0.1173 
+## F-statistic: 3.458e+04 on 1 and 329507 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div id="sls-estimation" class="section level3">
+<h3>2SLS estimation</h3>
+<pre class="r"><code>## dummy for QOB == 1
+census$q1 &lt;- ifelse(census$qob==1,1,0)
+iv &lt;- ivreg(lwklywge ~ educ | q1, data = census)</code></pre>
+<pre class="r"><code>htmlreg(list(ols,iv),doctype = F, digits=3,custom.model.names = c(&quot;OLS&quot;,&quot;IV&quot;))</code></pre>
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="bottom" style="margin-top:0.3em;">
+Statistical models
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>OLS</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>IV</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+4.995<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+4.597<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.004)
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.306)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+educ
+</td>
+<td style="padding-right: 12px; border: none;">
+0.071<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.102<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.000)
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.024)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="border-top: 1px solid black;">
+0.117
+</td>
+<td style="border-top: 1px solid black;">
+0.095
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Adj. R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.117
+</td>
+<td style="padding-right: 12px; border: none;">
+0.095
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Num. obs.
+</td>
+<td style="padding-right: 12px; border: none;">
+329509
+</td>
+<td style="padding-right: 12px; border: none;">
+329509
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+RMSE
+</td>
+<td style="border-bottom: 2px solid black;">
+0.638
+</td>
+<td style="border-bottom: 2px solid black;">
+0.646
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="4">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
+</td>
+</tr>
+</table>
+</div>
+<div id="looking-at-the-inclusion-restriction" class="section level3">
+<h3>Looking at the Inclusion Restriction</h3>
+<p>Is our instrument highly correlated with the endogenous regressor? We manually run the first stage and make sure to correct our standard errors for possible heteroscedasticity.</p>
+<pre class="r"><code>iv_stage1 &lt;- lm(educ ~ q1, data = census)
+coeftest(iv_stage1, vcov = vcovHC, type = &quot;HC1&quot;)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##               Estimate Std. Error  t value  Pr(&gt;|t|)    
+## (Intercept) 12.7968834  0.0065712 1947.433 &lt; 2.2e-16 ***
+## q1          -0.1088179  0.0133159   -8.172 3.043e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code># we could compare to results using the lfe package
+#test &lt;- felm(lwklywge ~ 1 | 0 |(educ ~ q1)| 0,data=census)
+#summary(test$stage1)$coefficients</code></pre>
+<p>Continue to estimate 2SLS using the predicted values from the first stage.</p>
+<pre class="r"><code>census$educ_pred &lt;- iv_stage1$fitted.values
+tsls &lt;- lm(lwklywge ~ educ_pred, data = census)
+coeftest(tsls,vcov=sandwich)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##             Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 4.597477   0.322077  14.274 &lt; 2.2e-16 ***
+## educ_pred   0.101995   0.025221   4.044 5.255e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>coeftest(iv, vcov=sandwich)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##             Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept) 4.597477   0.306889 14.9809 &lt; 2.2e-16 ***
+## educ        0.101995   0.024032  4.2442 2.194e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Compare results between using the <code>AER</code> package and doing 2SLS by hand. We should see that the coefficients are the same but the standard errors are different.</p>
+<pre class="r"><code>iv_se_robust &lt;- coeftest(iv, vcov=sandwich)[,&quot;Std. Error&quot;]
+tsls_se_robust &lt;- coeftest(tsls, vcov=sandwich)[,&quot;Std. Error&quot;]
+htmlreg(list(iv,tsls),
+        custom.model.names = c(&quot;ivreg&quot;,&quot;by hand&quot;),
+        doctype = F,
+        override.se = list(iv_se_robust,tsls_se_robust),
+        digits = 3)</code></pre>
+<pre><code>## Warning in override(models, override.coef, override.se, override.pvalues, :
+## Standard errors were provided using &#39;override.se&#39;, but p-values were not
+## replaced!</code></pre>
+<table cellspacing="0" align="center" style="border: none;">
+<caption align="bottom" style="margin-top:0.3em;">
+Statistical models
+</caption>
+<tr>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b></b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>ivreg</b>
+</th>
+<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
+<b>by hand</b>
+</th>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+(Intercept)
+</td>
+<td style="padding-right: 12px; border: none;">
+4.597<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+4.597<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.307)
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.322)
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+educ
+</td>
+<td style="padding-right: 12px; border: none;">
+0.102<sup style="vertical-align: 0px;">***</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.024)
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+educ_pred
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+0.102<sup style="vertical-align: 0px;">***</sup>
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+</td>
+<td style="padding-right: 12px; border: none;">
+(0.025)
+</td>
+</tr>
+<tr>
+<td style="border-top: 1px solid black;">
+R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="border-top: 1px solid black;">
+0.095
+</td>
+<td style="border-top: 1px solid black;">
+0.000
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Adj. R<sup style="vertical-align: 0px;">2</sup>
+</td>
+<td style="padding-right: 12px; border: none;">
+0.095
+</td>
+<td style="padding-right: 12px; border: none;">
+0.000
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;">
+Num. obs.
+</td>
+<td style="padding-right: 12px; border: none;">
+329509
+</td>
+<td style="padding-right: 12px; border: none;">
+329509
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid black;">
+RMSE
+</td>
+<td style="border-bottom: 2px solid black;">
+0.646
+</td>
+<td style="border-bottom: 2px solid black;">
+0.679
+</td>
+</tr>
+<tr>
+<td style="padding-right: 12px; border: none;" colspan="4">
+<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
+</td>
+</tr>
+</table>
+</div>
