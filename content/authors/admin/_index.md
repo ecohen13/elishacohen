@@ -1,7 +1,7 @@
 ---
 authors:
 - admin
-bio: I am a PhD student in political science at Emory University. I study political methodology with applications focused on gender, race , and inequality in the United States.
+bio: I am a PhD student in political science at Emory University. I study political methodology with applications focused on gender, race, and inequality in the United States.
 email: ""
 name: Elisha Cohen
 organizations:
@@ -21,4 +21,4 @@ user_groups:
 - Visitors
 ---
 
-Welcome! I am a PhD student in political science at Emory University. I study political methodology with applications focused on gender, race , and inequality in the United States.
+Welcome! I am a PhD student in political science at Emory University. I study political methodology with applications focused on gender, race, and inequality in the United States.
