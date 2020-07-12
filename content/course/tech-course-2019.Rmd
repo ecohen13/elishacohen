@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 </figure>
-[tech-icon]: /img/tech-icon.png
+[tech-icon]: public/img/tech-icon.png
 [test-html]: /slides/test-slides.html
 [day1-pdf]: /tex/tech-course-Day1.pdf
 [vc-html]: /slides/Verson-Control.html
