@@ -35,6 +35,6 @@ knitr::opts_chunk$set(echo = TRUE)
 [day2-pdf]: /PDFs/Tech-course-Day2-FA19.pdf
 
 ### Day 3 Introduction to R
-![Computer][computer-jpg]
+![Hist][hist-jpg]
 </figure>
-[computer-jpg]: /img/computer.jpg
+[hist-jpg]: /img/histogram.jpeg
