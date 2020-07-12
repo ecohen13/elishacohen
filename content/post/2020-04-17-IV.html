@@ -13,7 +13,8 @@ library(R.utils) #for file path (you may not need this)
 library(AER)
 library(texreg) #for nice tables
 library(sandwich)
-library(estimatr)</code></pre>
+library(estimatr)
+library(lfe)</code></pre>
 <pre class="r"><code>census &lt;- read_delim(filePath(path,&quot;asciiqob.txt&quot;),
                    delim = &quot; &quot;,
                    col_names = c(&quot;lwklywge&quot;,&quot;educ&quot;,&quot;yob&quot;,&quot;qob&quot;,&quot;pob&quot;),
@@ -233,7 +234,7 @@ coeftest(iv_stage1, vcov = vcovHC, type = &quot;HC1&quot;)</code></pre>
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="r"><code># we could compare to results using the lfe package
-#test &lt;- felm(lwklywge ~ 1 | 0 |(educ ~ q1)| 0,data=census)
+test &lt;- felm(lwklywge ~ 1 | 0 |(educ ~ q1)| 0,data=census)
 #summary(test$stage1)$coefficients</code></pre>
 <p>Continue to estimate 2SLS using the predicted values from the first stage.</p>
 <pre class="r"><code>census$educ_pred &lt;- iv_stage1$fitted.values

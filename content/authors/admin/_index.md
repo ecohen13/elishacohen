@@ -1,7 +1,7 @@
 ---
 authors:
 - admin
-bio: My research interests include the study of gender, race and ethnic politics, fairness, inequality and political methodology in the United States.
+bio: I am a PhD student in political science at Emory University. I study political methodology with applications focused on gender, race , and inequality in the United States.
 email: ""
 name: Elisha Cohen
 organizations:
@@ -21,4 +21,4 @@ user_groups:
 - Visitors
 ---
 
-Welcome! I am a PhD student of political science at Emory University. I hold a MA in Economics from Hunter College, CUNY. I study the politics of gender, race and ethnic politics, fairness, inequality and political methodology in the United States.
+Welcome! I am a PhD student in political science at Emory University. I study political methodology with applications focused on gender, race , and inequality in the United States.

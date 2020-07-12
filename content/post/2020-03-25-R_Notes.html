@@ -108,6 +108,7 @@ class(mtcars_matrix)</code></pre>
 <p>We will look at the relationship between life expectancy and year controlling for population, and GDP per capita. We expect that life expectancy has increased as time has passed. First, will start with a scatter plot to descriptively look at the relationship. This plots the life expectance of all countries over time.</p>
 <pre class="r"><code>library(ggplot2)
 library(dplyr)</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 3.6.2</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;dplyr&#39;</code></pre>
 <pre><code>## The following objects are masked from &#39;package:stats&#39;:
@@ -153,7 +154,7 @@ gapminder$yhat &lt;- fitted.values(fit)</code></pre>
 <pre class="r"><code>r &lt;- gapminder$lifeExp - gapminder$yhat
 resid &lt;- as.numeric(fit$residuals)
 all.equal(r, resid)</code></pre>
-<pre><code>## [1] TRUE</code></pre>
+<pre><code>## [1] &quot;names for target but not for current&quot;</code></pre>
 <p>What is the predicted life expectancy for the United States in 1952 and in 2007?</p>
 <pre class="r"><code>US1952 &lt;- gapminder %&gt;% filter(country==&#39;United States&#39; &amp; year==1952)
 predict_US1952 &lt;- predict(fit, newdata = US1952)

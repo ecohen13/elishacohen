@@ -19,6 +19,7 @@ library(AER)
 library(texreg) #for nice tables
 library(sandwich)
 library(estimatr)
+library(lfe)
 ```
 
 ```{r,message=F,warning=F,cache=T}
@@ -106,7 +107,7 @@ Is our instrument highly correlated with the endogenous regressor? We manually r
 iv_stage1 <- lm(educ ~ q1, data = census)
 coeftest(iv_stage1, vcov = vcovHC, type = "HC1")
 # we could compare to results using the lfe package
-#test <- felm(lwklywge ~ 1 | 0 |(educ ~ q1)| 0,data=census)
+test <- felm(lwklywge ~ 1 | 0 |(educ ~ q1)| 0,data=census)
 #summary(test$stage1)$coefficients
 ```
 
