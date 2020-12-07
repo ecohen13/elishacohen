@@ -67,4 +67,3 @@ projects: []
 slides: ""
 ---
  
-  
