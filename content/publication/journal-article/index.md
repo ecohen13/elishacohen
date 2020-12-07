@@ -19,7 +19,7 @@ publishDate: "2017-01-01T00:00:00Z"
 # 3 = Preprint / Working Paper; 4 = Report; 5 = Book; 6 = Book section;
 # 7 = Thesis; 8 = Patent
 #publication_types: ["2"]
-publication_types: []
+publication_types: ["2"]
 
 # Publication name and optional abbreviated publication name.
 publication: "Journal of Politics 81(3)"
@@ -65,12 +65,9 @@ projects: []
 #   E.g. `slides: "example"` references `content/slides/example/index.md`.
 #   Otherwise, set `slides: ""`.
 slides: ""
----
 
----
 title: "Counterevidence of crime-reduction effects from federal grants of military equipment to local police"
 authors:
-  - admin
   - Anna Gunderson
   - Elisha Cohen
   - Kaylyn Jackson
@@ -89,7 +86,7 @@ publishDate: "2017-01-01T00:00:00Z"
 # 3 = Preprint / Working Paper; 4 = Report; 5 = Book; 6 = Book section;
 # 7 = Thesis; 8 = Patent
 #publication_types: ["2"]
-publication_types: [2]
+publication_types: ["2"]
 
 # Publication name and optional abbreviated publication name.
 publication: "Nature Human Behaviour"
