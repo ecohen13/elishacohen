@@ -23,7 +23,7 @@ publishDate: "2017-01-01T00:00:00Z"
 publication_types: ["2"]
 
 # Publication name and optional abbreviated publication name.
-publication: "Nature Human Behaviour"
+publication: "Nature Human Behaviour (5), 194-204 (2021)"
 publication_short: ""
 
 abstract: In 2017, the Trump Administration restored local law enforcement agencies' access to military weapons and some other types of surplus military equipment (SME) that had been prohibited by the Obama Administration. The Justice Department background paper used to justify this decision cited two papers published by the American Economic Association. These papers used SME data collected with a 2014 Freedom of Information Act request and concluded that SME, supplied to local law enforcement by the federal government via the 1033 Program, reduces crime. Here we show that the findings of these studies are not credible due to problems with the data. Using more detailed audit data on 1033 SME, we show that the 2014 data are flawed and that the more recent data provide no evidence that 1033 SME reduces crime.
