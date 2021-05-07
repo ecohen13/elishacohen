@@ -21,7 +21,7 @@ publication_types: ["3"]
 publication: ""
 publication_short: ""
 
-abstract: Outcome tests are a method for detecting bias in selection procedures using data on selected units. We use a principal stratification approach to establish lower bounds on this bias for general outcomes. We show that the Knox, Lowe, and Mummolo [2020] bound is sharp for a binary outcome, and weaken the assumptions required for that approach. We also show that the analogous bound for non-binary outcomes is not sharp and provide sharper lower bounds. We illustrate these methods with a re-analysis of the data in Anzia and Berry [2011] on the delivery of federal spending by male and female members of congress. Using Anzia and Berry [2011] data and assumptions, we find that 19.9% of men elected, would not have been elected, had they been women.
+abstract: Outcome tests are a method for detecting bias in selection procedures using data on selected units. We use a principal stratification approach to establish lower bounds on this bias for general outcomes. We show that the Knox, Lowe, and Mummolo [2020] bound is sharp for a binary outcome, and weaken the assumptions required for that approach. We also show that the analogous bound for non-binary outcomes is not sharp and provide sharper lower bounds. We illustrate these methods with a re-analysis of the data in Anzia and Berry [2011] on the delivery of federal spending by male and female members of congress. Using Anzia and Berry [2011] data and assumptions, we find that at least 19.9% of men elected, would not have been elected, had they been women.
 
 # Summary. An optional shortened abstract.
 summary: ""
