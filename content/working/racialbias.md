@@ -25,7 +25,7 @@ publication_types: ["3"]
 publication: ""
 publication_short: ""
 
-abstract: We present a theoretical model predicting racially biased policing produces 1) more use of potentially lethal force by firearms against Black civilians than against White civilians and 2) lower fatality rates for Black civilians than White civilians. We empirically evaluate this second prediction with original officer-involved shooting data from nine local police jurisdictions from 2005 to 2017, finding that Black fatality rates are significantly lower than White fatality rates, conditional upon civilians being shot by the police. Using outcome test methodology, we estimate that at least 30% of Black civilians shot by the police would not have been shot had they been White. We also show that an omitted covariate three times stronger than our strongest included covariate would only reduce this estimate to 18%. Additionally, such an omitted covariate would have to affect Black fatality rates and not Hispanic fatality rates in order to be consistent with the data.
+abstract: We present a theoretical model predicting racially biased policing produces 1) more use of potentially lethal force by firearms against Black civilians than against White civilians and 2) lower fatality rates for Black civilians than White civilians. We empirically evaluate this second prediction with original officer-involved shooting data from eight local police jurisdictions from 2010 to 2017, finding that Black fatality rates are significantly lower than White fatality rates and that this significance would survive an omitted covariate three times as strong as any of our observed covariates. Furthermore, using outcome test methodology and a comparability assumption, we estimate that at least 30% of Black civilians shot by the police would not have been shot had they been White. An omitted covariate would need to be at least three times as strong as any of our observed covariates to eliminate this finding. Finally, any omitted covariate would have to affect Black fatality rates and not Hispanic fatality rates in order to be consistent with the data.
 
 # Summary. An optional shortened abstract.
 summary: ""
@@ -36,5 +36,5 @@ featured: false
 # links:
 # - name: ""
 #   url: ""
-url_pdf: 
+url_pdf: "PDFs/Racial_Bias_in_Shootings-Sept-13-2021.pdf"
 ---

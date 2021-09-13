@@ -1,5 +1,5 @@
 ---
-title: "Sensitivity Analysis on Outcome Test Lower Bound with Binary Data"
+title: "Sensitivity Analysis for Outcome Tests with Binary Data"
 collection: publications
 authors:
   - Elisha Cohen
@@ -20,7 +20,7 @@ publication_types: ["3"]
 publication: ""
 publication_short: ""
 
-abstract: Outcome tests are a method comparing rates of observed outcomes across selected groups to evaluate bias in decision making processes. Building on the lower bound estimand from Knox et al. (2020), I derive a lower bound in terms of relative risks and develop a sensitivity analysis to weaken the selection-on-observables assumption. Additionally I develop a covariate adjusted sensitivity analysis to assess sensitivity to unmeasured covariates. I am able to estimate a bias adjusted outcome test robust to both measured and unmeasured confounders. Applying this outcome test and sensitivity analysis to settlement and roster data from the Chicago Police Department (1985-2016), I find evidence for gender bias in hiring. I estimate at least 7.9% men would not have been hired had they been women.
+abstract: Outcome tests are a method comparing rates of observed outcomes across selected groups to evaluate bias in decision making processes. Building on the lower bound estimand from Knox, Lowe and Mummolo [2020], I derive a lower bound in terms of relative risks and develop a sensitivity analysis to weaken the selection-on-observables assumption. Additionally I develop a covariate adjusted sensitivity analysis to assess sensitivity to unmeasured covariates. I am able to estimate a bias adjusted outcome test robust to both measured and unmeasured confounders. Applying this outcome test and sensitivity analysis to data from the Chicago Police Department (1985-2016), I find evidence for gender bias in hiring. I estimate at least 7.4% of men would not have been hired had they been women.
 
 # Summary. An optional shortened abstract.
 summary: ""
@@ -31,5 +31,5 @@ featured: false
 # links:
 # - name: ""
 #   url: ""
-url_pdf: 
+url_pdf: "PDFs/"
 ---
