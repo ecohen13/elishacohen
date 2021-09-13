@@ -27,9 +27,16 @@ summary: ""
 
 tags: ""
 featured: false
+image:
+  caption: ''
+focal_point: ""
+preview_only: false
 
 # links:
 # - name: ""
 #   url: ""
 url_pdf: "PDFs/Ecohen-Sensitivity-Sept-13-2021.pdf"
 ---
+
+projects: []
+slides: ""
