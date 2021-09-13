@@ -33,5 +33,5 @@ featured: false
 # links:
 # - name: ""
 #   url: ""
-url_pdf: 
+# url_pdf: 
 ---
