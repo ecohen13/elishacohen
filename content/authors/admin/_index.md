@@ -5,9 +5,9 @@ bio: I am a PhD student in political science at Emory University. I study politi
 email: ""
 name: Elisha Cohen
 organizations:
-- name: Emory University
-  url: ""
-role: PhD Student in Political Science
+- name: NYU's CDS
+  url: https://cds.nyu.edu/
+role: Faculty Fellow
 social:
 - icon: google-scholar
   icon_pack: ai
