@@ -2,7 +2,6 @@
 # Documentation: https://sourcethemes.com/academic/docs/managing-content/
 
 title: "DS-UA 202 Responsible Data Science Spring 2023"
-external_link = "https://dataresponsibly.github.io/rds/"
 subtitle: ""
 summary: ""
 authors: []
@@ -28,3 +27,5 @@ image:
 #   Otherwise, set `projects = []`.
 projects: []
 ---
+
+external_link = "https://dataresponsibly.github.io/rds/"
