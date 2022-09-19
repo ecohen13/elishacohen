@@ -1,0 +1,16 @@
+---
+title: "QTM 385 Individual Causal Effects"
+author: "Elisha Cohen"
+date: 'Spring 2022
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Syllabus
+
+[<i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF][syll-pdf]&ensp;
+
+[syll-pdf]: /PDFs/QTM385_ITE_syllabus_SP22.pdf
