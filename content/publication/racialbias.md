@@ -37,4 +37,6 @@ featured: false
 # - name: ""
 #   url: ""
 url_pdf: "PDFs/Racial-Bias-Sept2022.pdf"
+- name: Dataverse
+url: "https://doi.org/10.7910/DVN/9GSJ6V"
 ---
