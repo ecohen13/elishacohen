@@ -8,8 +8,8 @@ light = true
 primary = "#364958"
 
 # Menu
-menu_primary = "#fff"
-menu_text = "#3B6064"
+menu_primary = "#3B6064" #this is main color bar
+menu_text = "#fff"
 menu_text_active = "#87BBA2"
 menu_title = "#55828B"
 
