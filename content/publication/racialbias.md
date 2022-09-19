@@ -36,5 +36,5 @@ featured: false
 # links:
 # - name: ""
 #   url: ""
-url_pdf: "PDFs/Racial_Bias_in_Shootings-Sept-13-2021.pdf"
+url_pdf: "PDFs/Racial-Bias-Sept2022.pdf"
 ---
