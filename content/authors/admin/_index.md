@@ -7,7 +7,7 @@ name: Elisha Cohen
 organizations:
 - name: NYU's CDS
   url: https://cds.nyu.edu/
-role: Faculty Fellow
+role: Data Science Faculty Fellow
 social:
 - icon: google-scholar
   icon_pack: ai
