@@ -25,7 +25,7 @@ image:
 #   Simply enter your project's folder or file name without extension.
 #   E.g. `projects = ["internal-project"]` references `content/project/deep-learning/index.md`.
 #   Otherwise, set `projects = []`.
-projects: []
+projects: external_link = "https://dataresponsibly.github.io/rds/"
 ---
 
-external_link = "https://dataresponsibly.github.io/rds/"
+[Course Website](https://dataresponsibly.github.io/rds/)
