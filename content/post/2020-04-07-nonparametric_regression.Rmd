@@ -117,7 +117,7 @@ Decide on evaluation points $x_0$. Our data is (roughly) from 20 to 60 so let's 
 
 ```{r}
 # evaluation points
-x0 <- seq(20,60,20)
+x0 <- seq(25,55,10)
 # bandwidth
 h <- 10
 ```
@@ -126,13 +126,14 @@ We have 3 evaluation points, let's do a loop to calculate the scaled distance fr
 
 ```{r}
 # empty container
-distances <- matrix(NA, nrow = length(df$x), ncol = 3)
+distances <- matrix(NA, nrow = length(df$x), ncol = 4)
 colnames(distances) <- x0
 for(i in 1:length(x0)){
   # calc distance and put in column i
   distances[,i] <- df$x - x0[i]
-  # divide by bandwidth (this does scaling)
-  distances <- distances/h
+  # divide by sum of bandwidth (this does scaling)
+  # want scaled so can use as weights
+  #distances[,i] <- distances[,i]/sum(distances[,i])
 }
 
 ```
@@ -148,31 +149,31 @@ Estimate predicted values at the evaluation points using our weights
 
 ```{r}
 # eval point 20
-W_20 <- diag(weights$X20)
+W_25 <- diag(weights$X25)
 X <- as.matrix(cbind(rep(1,100), df$x)) #create X matrix with intercept
 Y <- as.matrix(df$y)
-B_WLS_20 <- solve(t(X)%*%W_20%*%X)%*%(t(X)%*%W_20%*%Y)
+B_WLS_25 <- solve(t(X)%*%W_25%*%X)%*%(t(X)%*%W_25%*%Y)
 # eval point 40
-W_40 <- diag(weights$X40)
-B_WLS_40 <- solve(t(X)%*%W_40%*%X)%*%(t(X)%*%W_40%*%Y)
+W_45 <- diag(weights$X45)
+B_WLS_45 <- solve(t(X)%*%W_45%*%X)%*%(t(X)%*%W_45%*%Y)
 # eval point 60
-W_60 <- diag(weights$X60)
-B_WLS_60 <- solve(t(X)%*%W_60%*%X)%*%(t(X)%*%W_60%*%Y)
+W_55 <- diag(weights$X55)
+B_WLS_55 <- solve(t(X)%*%W_55%*%X)%*%(t(X)%*%W_55%*%Y)
 
 # predicted values
-yhat <- data.frame(y20 = X%*%B_WLS_20,
-                   y40 = X%*%B_WLS_40,
-                   y60 = X%*%B_WLS_60)
+yhat <- data.frame(y25 = X%*%B_WLS_25,
+                   y45 = X%*%B_WLS_45,
+                   y55 = X%*%B_WLS_55)
 yhat <- pivot_longer(yhat, names_to = "group", names_prefix = "y",
                      values_to="yhat",cols = c(1:3))
 
 df_big <- bind_cols(bind_rows(df,df,df),yhat)
 #first eval point
-ggplot(data = df_big %>% filter(group==20), aes(x = x, y = y)) +
+ggplot(data = df_big %>% filter(group==25), aes(x = x, y = y)) +
   geom_point() +
   geom_point(aes(x = x, y = yhat),color="red") +
   theme_bw()
-ggplot(data = df_big %>% filter(group==40), aes(x = x, y = y)) +
+ggplot(data = df_big %>% filter(group==45), aes(x = x, y = y)) +
   geom_point() +
   geom_point(aes(x = x, y = yhat), color="green") +
   theme_bw()

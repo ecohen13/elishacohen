@@ -112,112 +112,109 @@ coeftest(ols, vcov=vcovHC, method=&quot;HC1&quot;)</code></pre>
 census$q1 &lt;- ifelse(census$qob==1,1,0)
 iv &lt;- ivreg(lwklywge ~ educ | q1, data = census)</code></pre>
 <pre class="r"><code>htmlreg(list(ols,iv),doctype = F, digits=3,custom.model.names = c(&quot;OLS&quot;,&quot;IV&quot;))</code></pre>
-<table cellspacing="0" align="center" style="border: none;">
-<caption align="bottom" style="margin-top:0.3em;">
+<table class="texreg" style="margin: 10px auto;border-collapse: collapse;border-spacing: 0px;caption-side: bottom;color: #000000;border-top: 2px solid #000000;">
+<caption>
 Statistical models
 </caption>
+<thead>
 <tr>
-<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
-<b></b>
+<th style="padding-left: 5px;padding-right: 5px;">
+ 
 </th>
-<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
-<b>OLS</b>
+<th style="padding-left: 5px;padding-right: 5px;">
+OLS
 </th>
-<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
-<b>IV</b>
+<th style="padding-left: 5px;padding-right: 5px;">
+IV
 </th>
 </tr>
-<tr>
-<td style="padding-right: 12px; border: none;">
+</thead>
+<tbody>
+<tr style="border-top: 1px solid #000000;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (Intercept)
 </td>
-<td style="padding-right: 12px; border: none;">
-4.995<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+4.995<sup>***</sup>
 </td>
-<td style="padding-right: 12px; border: none;">
-4.597<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+4.597<sup>***</sup>
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.004)
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.306)
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 educ
 </td>
-<td style="padding-right: 12px; border: none;">
-0.071<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+0.071<sup>***</sup>
 </td>
-<td style="padding-right: 12px; border: none;">
-0.102<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+0.102<sup>***</sup>
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.000)
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.024)
 </td>
 </tr>
-<tr>
-<td style="border-top: 1px solid black;">
-R<sup style="vertical-align: 0px;">2</sup>
+<tr style="border-top: 1px solid #000000;">
+<td style="padding-left: 5px;padding-right: 5px;">
+R<sup>2</sup>
 </td>
-<td style="border-top: 1px solid black;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.117
 </td>
-<td style="border-top: 1px solid black;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.095
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
-Adj. R<sup style="vertical-align: 0px;">2</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+Adj. R<sup>2</sup>
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.117
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.095
 </td>
 </tr>
-<tr>
-<td style="padding-right: 12px; border: none;">
+<tr style="border-bottom: 2px solid #000000;">
+<td style="padding-left: 5px;padding-right: 5px;">
 Num. obs.
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 329509
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 329509
 </td>
 </tr>
+</tbody>
+<tfoot>
 <tr>
-<td style="border-bottom: 2px solid black;">
-RMSE
-</td>
-<td style="border-bottom: 2px solid black;">
-0.638
-</td>
-<td style="border-bottom: 2px solid black;">
-0.646
+<td style="font-size: 0.8em;" colspan="3">
+<sup>***</sup>p &lt; 0.001; <sup>**</sup>p &lt; 0.01; <sup>*</sup>p &lt; 0.05
 </td>
 </tr>
-<tr>
-<td style="padding-right: 12px; border: none;" colspan="4">
-<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
-</td>
-</tr>
+</tfoot>
 </table>
 </div>
 <div id="looking-at-the-inclusion-restriction" class="section level3">
@@ -265,131 +262,133 @@ htmlreg(list(iv,tsls),
         doctype = F,
         override.se = list(iv_se_robust,tsls_se_robust),
         digits = 3)</code></pre>
-<pre><code>## Warning in override(models, override.coef, override.se, override.pvalues, :
-## Standard errors were provided using &#39;override.se&#39;, but p-values were not
-## replaced!</code></pre>
-<table cellspacing="0" align="center" style="border: none;">
-<caption align="bottom" style="margin-top:0.3em;">
+<pre><code>## Warning in override(models = models, override.coef = override.coef, override.se
+## = override.se, : Standard errors were provided using &#39;override.se&#39;, but p-values
+## were not replaced!</code></pre>
+<table class="texreg" style="margin: 10px auto;border-collapse: collapse;border-spacing: 0px;caption-side: bottom;color: #000000;border-top: 2px solid #000000;">
+<caption>
 Statistical models
 </caption>
+<thead>
 <tr>
-<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
-<b></b>
+<th style="padding-left: 5px;padding-right: 5px;">
+ 
 </th>
-<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
-<b>ivreg</b>
+<th style="padding-left: 5px;padding-right: 5px;">
+ivreg
 </th>
-<th style="text-align: left; border-top: 2px solid black; border-bottom: 1px solid black; padding-right: 12px;">
-<b>by hand</b>
+<th style="padding-left: 5px;padding-right: 5px;">
+by hand
 </th>
 </tr>
-<tr>
-<td style="padding-right: 12px; border: none;">
+</thead>
+<tbody>
+<tr style="border-top: 1px solid #000000;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (Intercept)
 </td>
-<td style="padding-right: 12px; border: none;">
-4.597<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+4.597<sup>***</sup>
 </td>
-<td style="padding-right: 12px; border: none;">
-4.597<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+4.597<sup>***</sup>
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.307)
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.322)
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 educ
 </td>
-<td style="padding-right: 12px; border: none;">
-0.102<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+0.102<sup>***</sup>
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.024)
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 educ_pred
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
-<td style="padding-right: 12px; border: none;">
-0.102<sup style="vertical-align: 0px;">***</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+0.102<sup>***</sup>
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
+ 
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 (0.025)
 </td>
 </tr>
-<tr>
-<td style="border-top: 1px solid black;">
-R<sup style="vertical-align: 0px;">2</sup>
+<tr style="border-top: 1px solid #000000;">
+<td style="padding-left: 5px;padding-right: 5px;">
+R<sup>2</sup>
 </td>
-<td style="border-top: 1px solid black;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.095
 </td>
-<td style="border-top: 1px solid black;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.000
 </td>
 </tr>
 <tr>
-<td style="padding-right: 12px; border: none;">
-Adj. R<sup style="vertical-align: 0px;">2</sup>
+<td style="padding-left: 5px;padding-right: 5px;">
+Adj. R<sup>2</sup>
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.095
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 0.000
 </td>
 </tr>
-<tr>
-<td style="padding-right: 12px; border: none;">
+<tr style="border-bottom: 2px solid #000000;">
+<td style="padding-left: 5px;padding-right: 5px;">
 Num. obs.
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 329509
 </td>
-<td style="padding-right: 12px; border: none;">
+<td style="padding-left: 5px;padding-right: 5px;">
 329509
 </td>
 </tr>
+</tbody>
+<tfoot>
 <tr>
-<td style="border-bottom: 2px solid black;">
-RMSE
-</td>
-<td style="border-bottom: 2px solid black;">
-0.646
-</td>
-<td style="border-bottom: 2px solid black;">
-0.679
+<td style="font-size: 0.8em;" colspan="3">
+<sup>***</sup>p &lt; 0.001; <sup>**</sup>p &lt; 0.01; <sup>*</sup>p &lt; 0.05
 </td>
 </tr>
-<tr>
-<td style="padding-right: 12px; border: none;" colspan="4">
-<span style="font-size:0.8em"><sup style="vertical-align: 0px;"><em><strong></sup>p &lt; 0.001, <sup style="vertical-align: 0px;"></strong></sup>p &lt; 0.01, <sup style="vertical-align: 0px;"></em></sup>p &lt; 0.05</span>
-</td>
-</tr>
+</tfoot>
 </table>
 </div>
