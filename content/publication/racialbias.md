@@ -33,7 +33,7 @@ summary: ""
 tags: ""
 featured: false
 
-url_pdf: "PDFs/Racial-Bias-Sept2022.pdf"
+#url_pdf: "PDFs/Racial-Bias-Sept2022.pdf"
 links:
 - name: "Preprint"
   url: PDFs/Racial-Bias-Sept2022.pdf
