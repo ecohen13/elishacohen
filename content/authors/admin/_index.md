@@ -1,13 +1,13 @@
 ---
 authors:
 - admin
-bio: I am a Data Science Faculty Fellow at NYU's Center for Data Science. I work at the intersection of political methodology, applied statistics and data science.
+bio: I am an Assistant Professor of Political Science at the University of Illinois Urbana-Champaign. I work at the intersection of political methodology, applied statistics and American Politics.
 email: ""
 name: Elisha Cohen
 organizations:
-- name: NYU's CDS
-  url: https://cds.nyu.edu/
-role: Data Science Faculty Fellow
+- name: UIUC
+  url: https://pol.illinois.edu/
+role: Assistant Professor
 social:
 - icon: google-scholar
   icon_pack: ai
@@ -21,4 +21,4 @@ user_groups:
 - Visitors
 ---
 
-Welcome! I am a Data Science Faculty Fellow at New York University's Center for Data Science. My research focus is on developing statistical methods for assessing fairness. I work at the intersection of political methodology, applied statistics and data science.
+Welcome! I am an Assistant Professor of Political Science at the University of Illinois Urbana-Champaign. My research focus is on developing statistical methods for assessing fairness. I work at the intersection of political methodology, applied statistics and American Politics.
