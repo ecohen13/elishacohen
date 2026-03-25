@@ -1,9 +1,9 @@
 ---
-title: "Third-Party Governance, Shared Descriptive Identity, and AI Type: Contours of Support for AI in Policing
+title: "Third-Party Governance, Shared Descriptive Identity, and AI Type: Contours of Support for AI in Policing"
 authors:
   - Elisha Cohen
   - Anna Gunderson
-date: "2026-03-25"
+date: "2026-03-25T00:00:00Z"
 doi: ""
 
 # Schedule page publish date (NOT publication's date).
