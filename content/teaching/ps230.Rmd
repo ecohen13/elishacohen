@@ -1,0 +1,15 @@
+---
+title: "PS 230: Introduction to Political Research"
+author: "Elisha Cohen"
+date: "2026-03-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+This class is an introduction to political science research. We will combine applied statistics with data analysis to study current questions in political science. In this course, you will learn the fundamental principles of quantitative reasoning and develop the programming skills needed to answer a wide range of political science questions using real-world data.
+
